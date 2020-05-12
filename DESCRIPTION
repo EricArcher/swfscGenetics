@@ -1,0 +1,9 @@
+Package: swfscGenetics
+Type: Package
+Title: Miscellaneous functions for genetic data manipulation
+Version: 0.0.1
+Date: 2015-10-25
+Author: Eric Archer
+Maintainer: eric.archer@noaa.gov
+Description: Miscellaneous functions for genetic data manipulation
+License: What license is it under?
