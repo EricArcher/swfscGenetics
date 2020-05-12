@@ -9,14 +9,16 @@ pileupConsensus(fname, min.cov, min.freq, min.freq.cov)
 \arguments{
 \item{fname}{filename of pileup file}
 
-\item{min.cov}{minimum coverage for base calling (sites with coverage below
-this are assigned N's).}
+\item{min.cov}{minimum coverage for base calling. Sites with coverage below
+this are assigned \code{N}'s.}
 
 \item{min.freq}{minimum frequency of either the reference or alternate base
-for calling. If both bases are below this frequency, an N is assigned.}
+for calling. If both bases are below this frequency, an \code{N} 
+is assigned.}
 
-\item{min.freq.cov}{minimum coverage above which min.freq is applied. Sites
-below this and >= than min.cov will only be called if all reads agree.}
+\item{min.freq.cov}{minimum coverage above which \code{min.freq} is applied. 
+Sites below this value and >= than \code{min.cov} will only be called 
+if all reads agree.}
 }
 \value{
 list with the following elements:

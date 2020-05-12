@@ -3,14 +3,16 @@
 #'   and creates a consensus sequence for each chromosome listed.
 #'
 #' @param fname filename of pileup file
-#' @param min.cov minimum coverage for base calling (sites with coverage below
-#'   this are assigned N's).
+#' @param min.cov minimum coverage for base calling. Sites with coverage below
+#'   this are assigned \code{N}'s.
 #' @param min.freq minimum frequency of either the reference or alternate base
-#'   for calling. If both bases are below this frequency, an N is assigned.
-#' @param min.freq.cov minimum coverage above which min.freq is applied. Sites
-#'   below this and >= than min.cov will only be called if all reads agree.
+#'   for calling. If both bases are below this frequency, an \code{N} 
+#'   is assigned.
+#' @param min.freq.cov minimum coverage above which \code{min.freq} is applied. 
+#'   Sites below this value and >= than \code{min.cov} will only be called 
+#'   if all reads agree.
 #'
-#' @return  list with the following elements:
+#' @return list with the following elements:
 #' \tabular{ll}{ 
 #'   \code{cons.seq} \tab named list of consensus sequences for each chromosome.\cr 
 #'   \code{plp} \tab data frame of the pileup data with base frequencies.\cr 
