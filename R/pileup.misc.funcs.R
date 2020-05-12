@@ -1,3 +1,4 @@
+#' @noRd
 .indelFreq <- function(coverage, bases, flag) {
   pattern <- paste("[", flag, "][0-9]+[ACGTNacgtn]+", sep = "")
   pos <- gregexpr(pattern, bases)[[1]]
@@ -30,14 +31,7 @@
 }
 
 
-#' @name calcFreqs
-#' @title Calculate Base Frequencies
-#' @description Calculate base frequencies in pileup file
-#'
-#' @param plp data frame from mpileup
-#'
-#' @author Eric Archer <eric.archer@@noaa.gov>>
-#'
+#' @noRd
 .calcFreqs <- function(plp) {
   freqs <- lapply(1:nrow(plp), function(i) {
     bases <- plp$bases[i]
@@ -72,6 +66,7 @@
 }
 
 
+#' @noRd
 .makeSelections <- function(pos.freqs, params) {
   .consensusBase <- function(coverage, freqs, params) {
     if(is.null(freqs)) return(NULL)
@@ -104,6 +99,7 @@
 }
 
 
+#' @noRd
 .plpSummary <- function(plp, cons.seq, pos.freqs) {
   plp$bases <- NULL
   plp$consensus <- cons.seq
@@ -130,6 +126,7 @@
 }
 
 
+#' @noRd
 .insertNs <- function(cons.seq) {
   # create a data.frame of current consensus sequence
   cons.df <- data.frame(

@@ -1,9 +1,18 @@
 Package: swfscGenetics
 Type: Package
 Title: Miscellaneous functions for genetic data manipulation
+Description: Miscellaneous functions for genetic data manipulation used at 
+  the Southwest Fisheries Science Center
 Version: 0.0.1
-Date: 2015-10-25
-Author: Eric Archer
-Maintainer: eric.archer@noaa.gov
-Description: Miscellaneous functions for genetic data manipulation
-License: What license is it under?
+Authors@R: c(
+  EA = person("Eric", "Archer", email = "eric.archer@noaa.gov", role = c("aut", "cre")))
+URL: https://github.com/EricArcher/swfscMisc
+BugReports: https://github.com/EricArcher/swfscMisc/issues
+Depends:
+  R (>= 3.2.3)
+Imports:
+  magrittr,
+  data.table,
+  dplyr,
+License: GPL (>= 2)
+RoxygenNote: 7.0.2

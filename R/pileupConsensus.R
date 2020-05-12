@@ -1,12 +1,30 @@
-
+#' @title Create consensus sequences from pileup file
+#' @description Reads a pileup format file created by samtools mpileup and
+#'   creates a consensus sequence for each chromosome listed.
+#'
+#' @param fname filename of pileup file
+#' @param min.cov minimum coverage for base calling (sites with coverage below
+#'   this are assigned N's).
+#' @param min.freq minimum frequency of either the reference or alternate base
+#'   for calling. If both bases are below this frequency, an N is assigned.
+#' @param min.freq.cov minimum coverage above which min.freq is applied. Sites
+#'   below this and >= than min.cov will only be called if all reads agree.
+#'
+#' @return data frame representing the pileup file with the following columns:
+#'   \tabular{ll}{ \code{chrom} \tab Chromosome name.\cr \code{pos} \tab 1-based
+#'   position on the chromosome.\cr \code{ref} \tab Reference base at this
+#'   position.\cr \code{cov} \tab Number of reads covering this position.\cr
+#'   \code{bases} \tab Read bases.\cr \code{quals} \tab Base qualities, encoded
+#'   as ASCII characters.\cr }
+#'
+#' @note The input pileup file should be the result of a call to 'samtools
+#'   mpileup' on a single BAM file.
+#'
+#' @author Eric Archer \email{eric.archer@@noaa.gov}
+#'
+#' @export
+#' 
 pileupConsensus <- function(fname, min.cov, min.freq, min.freq.cov) {
-  #' min.cov : Minimum coverage for base calling (sites with coverage below this
-  #' are assigned N's).
-  #' min.freq : Minimum frequency of either the reference or alternate base for
-  #' calling. If both bases are below this frequency, an N is assigned.
-  #' min.freq.cov : Minimum coverage above which min.freq is applied. Sites
-  #'  below this and >= than min.cov will only be called if all reads agree.
-  
   # convert parameters and make sure the values are in proper range
   params <- list(
     min.cov = max(as.numeric(min.cov), 1),
