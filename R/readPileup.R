@@ -1,5 +1,5 @@
 #' @title Read pileup file
-#' @description Reads a pileup format file created by samtools mpileup
+#' @description Reads a pileup format file created by \code{samtools mpileup}.
 #' 
 #' @param fname filename of pileup file
 #' @param all.columns If \code{FALSE} (default), only the first 6 columns are 

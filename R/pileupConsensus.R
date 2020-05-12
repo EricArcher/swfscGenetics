@@ -1,6 +1,6 @@
 #' @title Create consensus sequences from pileup file
-#' @description Reads a pileup format file created by samtools mpileup and
-#'   creates a consensus sequence for each chromosome listed.
+#' @description Reads a pileup formatted file created by \code{samtools mpileup}
+#'   and creates a consensus sequence for each chromosome listed.
 #'
 #' @param fname filename of pileup file
 #' @param min.cov minimum coverage for base calling (sites with coverage below
@@ -10,15 +10,16 @@
 #' @param min.freq.cov minimum coverage above which min.freq is applied. Sites
 #'   below this and >= than min.cov will only be called if all reads agree.
 #'
-#' @return data frame representing the pileup file with the following columns:
-#'   \tabular{ll}{ \code{chrom} \tab Chromosome name.\cr \code{pos} \tab 1-based
-#'   position on the chromosome.\cr \code{ref} \tab Reference base at this
-#'   position.\cr \code{cov} \tab Number of reads covering this position.\cr
-#'   \code{bases} \tab Read bases.\cr \code{quals} \tab Base qualities, encoded
-#'   as ASCII characters.\cr }
+#' @return  list with the following elements:
+#' \tabular{ll}{ 
+#'   \code{cons.seq} \tab named list of consensus sequences for each chromosome.\cr 
+#'   \code{plp} \tab data frame of the pileup data with base frequencies.\cr 
+#'   \code{insertions} \tab data frame of insertion locations and frequencies.
+#'     If there are no insertions, this will be \code{NULL}.\cr 
+#' }
 #'
-#' @note The input pileup file should be the result of a call to 'samtools
-#'   mpileup' on a single BAM file.
+#' @note The input pileup file should be the result of a call to 
+#'   \code{samtools mpileup} on a single BAM file.
 #'
 #' @author Eric Archer \email{eric.archer@@noaa.gov}
 #'

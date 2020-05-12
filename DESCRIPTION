@@ -1,8 +1,8 @@
 Package: swfscGenetics
 Type: Package
 Title: Miscellaneous functions for genetic data manipulation
-Description: Miscellaneous functions for genetic data manipulation used at 
-  the Southwest Fisheries Science Center
+Description: Contains miscellaneous functions for genetic data 
+  manipulation used at the Southwest Fisheries Science Center.
 Version: 0.0.1
 Authors@R: c(
   EA = person("Eric", "Archer", email = "eric.archer@noaa.gov", role = c("aut", "cre")))
@@ -14,5 +14,6 @@ Imports:
   magrittr,
   data.table,
   dplyr,
+  R.utils
 License: GPL (>= 2)
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
