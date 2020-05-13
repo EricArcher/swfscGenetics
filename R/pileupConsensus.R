@@ -54,12 +54,10 @@ pileupConsensus <- function(fname, min.cov, min.freq, min.freq.cov) {
       ins.df <- data.frame(
         ref.pos = as.numeric(ins.pos),
         insertion = do.call(c, ins),
-        freq = ins.freq
+        freq = ins.freq,
+        stringsAsFactors = FALSE
       )
-      ins.df <- cbind(
-        chrom = rep(unique(plp$chrom), nrow(ins.df)),
-        ins.df
-      )
+      ins.df <- cbind(chrom = rep(unique(plp$chrom), nrow(ins.df)), ins.df)
       rownames(ins.df) <- NULL
       ins.df
     }

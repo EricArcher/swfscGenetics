@@ -33,19 +33,20 @@
 
 #' @noRd
 .calcFreqs <- function(plp) {
+  .removeIndels <- function(bases, text) {
+    if(!is.null(text)) for(x in text) bases <- gsub(x, "", bases, fixed = T)
+    bases
+  }
+  
   freqs <- lapply(1:nrow(plp), function(i) {
     bases <- plp$bases[i]
     coverage <- plp$cov[i]
     # remove insertions
     in.freq <- .indelFreq(coverage, bases, "+")
-    if(!is.null(in.freq$text)) {
-      for(x in in.freq$text) bases <- gsub(x, "", bases, fixed = T)
-    }
+    bases <- .removeIndels(bases, in.freq$text)
     # remove deletions
     del.freq <- .indelFreq(coverage, bases, "-")
-    if(!is.null(del.freq$text)) {
-      for(x in in.freq$text) bases <- gsub(x, "", bases, fixed = T)
-    }
+    bases <- .removeIndels(bases, del.freq$text)
     # remove read markers
     bases <- gsub("[ ^][[:alnum:]|[:punct:]]|[$]", "", bases)
     # insert reference base
