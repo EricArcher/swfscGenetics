@@ -6,8 +6,8 @@ Description: Contains miscellaneous functions for genetic data
 Version: 0.0.1
 Authors@R: c(
   EA = person("Eric", "Archer", email = "eric.archer@noaa.gov", role = c("aut", "cre")))
-URL: https://github.com/EricArcher/swfscMisc
-BugReports: https://github.com/EricArcher/swfscMisc/issues
+URL: https://github.com/EricArcher/swfscGenetics
+BugReports: https://github.com/EricArcher/swfscGenetics/issues
 Depends:
   R (>= 3.2.3)
 Imports:
