@@ -4,7 +4,7 @@
 \alias{pileupConsensus}
 \title{Create consensus sequences from pileup file}
 \usage{
-pileupConsensus(fname, min.cov, min.freq, min.freq.cov)
+pileupConsensus(fname, min.cov, min.freq, min.freq.cov, num.cores = NULL)
 }
 \arguments{
 \item{fname}{filename of pileup file}
@@ -19,6 +19,9 @@ is assigned.}
 \item{min.freq.cov}{minimum coverage above which \code{min.freq} is applied. 
 Sites below this value and >= than \code{min.cov} will only be called 
 if all reads agree.}
+
+\item{num.cores}{number of cores to use during processing. If \code{NULL}, 
+will default to \code{parallel::detectCores() - 1}.}
 }
 \value{
 list with the following elements:

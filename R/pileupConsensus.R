@@ -11,6 +11,8 @@
 #' @param min.freq.cov minimum coverage above which \code{min.freq} is applied. 
 #'   Sites below this value and >= than \code{min.cov} will only be called 
 #'   if all reads agree.
+#' @param num.cores number of cores to use during processing. If \code{NULL}, 
+#'   will default to \code{parallel::detectCores() - 1}.
 #'
 #' @return list with the following elements:
 #' \tabular{ll}{ 
@@ -27,7 +29,8 @@
 #'
 #' @export
 #' 
-pileupConsensus <- function(fname, min.cov, min.freq, min.freq.cov) {
+pileupConsensus <- function(fname, min.cov, min.freq, min.freq.cov, 
+                            num.cores = NULL) {
   # convert parameters and make sure the values are in proper range
   params <- list(
     min.cov = max(as.numeric(min.cov), 1),
@@ -35,49 +38,33 @@ pileupConsensus <- function(fname, min.cov, min.freq, min.freq.cov) {
     min.freq.cov = max(min.cov, as.numeric(min.freq.cov))
   )
   
+  message("Reading file...")
   plp.file <- readPileup(fname)
+  plp.file <- split(plp.file, plp.file$chrom)
   
-  results <- sapply(split(plp.file, plp.file$chrom), function(plp) {
-    pos.freqs <- .calcFreqs(plp)
-    selected <- .makeSelections(pos.freqs, params)
-    cons.seq <- selected$bases
+  smry <- lapply(1:length(plp.file), function(i) {
+    message(
+      "Processing pileup for '", names(plp.file)[[i]], "' ",
+      "(", i, "/", length(plp.file), ")..."
+    ) 
     
-    ins <- selected$ins
-    insertions <- if(is.null(ins)) NULL else {
-      ins.pos <- names(ins)
-      # insert insertions at correct position
-      i <- match(ins.pos, names(cons.seq))
-      cons.seq <- R.utils::insert(cons.seq, i + 1, ins)
-      # compile data frame about insertion frequencies
-      ins <- sapply(ins, paste, collapse = "")
-      ins.freq <- sapply(ins.pos, function(x) max(pos.freqs[[x]]$in.freq))
-      ins.df <- data.frame(
-        ref.pos = as.numeric(ins.pos),
-        insertion = do.call(c, ins),
-        freq = ins.freq,
-        stringsAsFactors = FALSE
-      )
-      ins.df <- cbind(chrom = rep(unique(plp$chrom), nrow(ins.df)), ins.df)
-      rownames(ins.df) <- NULL
-      ins.df
-    }
+    # call bases and summarize frequencies
+    plp.smry <- .plpSummary(plp.file[[i]], params, num.cores)
     
-    plp <- .plpSummary(plp, cons.seq, pos.freqs)
+    # compile insertion frequencies
+    insertions <- .compileInsertions(plp.smry)
     
-    # replace names of inserted bases with position of prior base
-    insert.i <- which(is.na(as.numeric(names(cons.seq))))
-    if(length(insert.i) > 0) {
-      for(i in insert.i) names(cons.seq)[i] <- names(cons.seq)[i - 1]
-    }
+    # compile pileup summary data frames
+    plp.smry <- do.call(rbind, lapply(plp.smry, function(x) x$plp))
+    plp.smry <- plp.smry[order(plp.smry$pos, plp.smry$pos.order), ]
+    plp.smry$cons.pos <- 1:nrow(plp.smry)
+    rownames(plp.smry) <- NULL
+    colnames(plp.smry)[2] <- "ref.pos"
     
-    list(cons.seq = .insertNs(cons.seq), plp = plp, insertions = insertions)
-  }, simplify = F, USE.NAMES = T)
+    cons.seq <- unlist(strsplit(plp.smry$consensus, ""))
+    
+    list(cons.seq = cons.seq, plp = plp.smry, insertions = insertions)
+  })
   
-  cons.seq <- sapply(results, function(x) x$cons.seq, simplify = F)
-  plp <- do.call(rbind, lapply(results, function(x) x$plp))
-  ins.list <- lapply(results, function(x) x$insertions)
-  ins.list <- ins.list[!sapply(ins.list, is.null)]
-  insertions <- do.call(rbind, ins.list)
-  
-  list(cons.seq = cons.seq, plp = plp, insertions = insertions)
+  .compileSummaries(smry, names(plp.file))
 }
