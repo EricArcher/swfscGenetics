@@ -20,6 +20,7 @@ Imports:
   RODBC,
   stats,
   swfscMisc,
-  tidyr
+  tidyr,
+  utils
 License: GPL (>= 2)
 RoxygenNote: 7.1.0

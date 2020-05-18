@@ -4,10 +4,10 @@
 \alias{microhaplot2rubias}
 \title{Convert MicroHaplot file to rubias format}
 \usage{
-microhaplot2rubias(df, sample.type = c("reference", "mixture"))
+microhaplot2rubias(x, sample.type = c("reference", "mixture"))
 }
 \arguments{
-\item{df}{data frame from MicroHaplot}
+\item{x}{data frame from MicroHaplot or the name a of .csv file.}
 
 \item{sample.type}{determines type of MicroHaplot sample. Can be any 
 unambiguous substring of \code{"reference"} or \code{"mixture"}.}

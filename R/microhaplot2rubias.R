@@ -2,7 +2,7 @@
 #' @description Converts a reference or mixture file from the MicroHaplot 
 #'   package to the proper format for the rubias package
 #'   
-#' @param df data frame from MicroHaplot
+#' @param x data frame from MicroHaplot or the name a of .csv file.
 #' @param sample.type determines type of MicroHaplot sample. Can be any 
 #'   unambiguous substring of \code{"reference"} or \code{"mixture"}.
 #' 
@@ -11,8 +11,15 @@
 #'
 #' @export
 #' 
-microhaplot2rubias <- function(df, sample.type = c("reference", "mixture")) {
-  rubias <- split(df, list(df$group, df$indiv.ID)) %>% 
+microhaplot2rubias <- function(x, sample.type = c("reference", "mixture")) {
+  x <- if(is.character(x)) {
+    if(!file.exists(x)) stop("The file '", x, "' cannot be found.")
+    utils::read.csv(x)
+  } else if(is.data.frame(x)) x else {
+    stop("'x' is not a character or data.frame")
+  }
+  
+  rubias <- split(x, list(x$group, x$indiv.ID)) %>% 
     lapply(function(id.df) {
       id.df <- id.df[order(id.df$locus), ]
       
@@ -41,7 +48,7 @@ microhaplot2rubias <- function(df, sample.type = c("reference", "mixture")) {
     ) %>% 
     as.data.frame
   
-  sample.type <- match.arg(tolower(sample.type))
+  sample.type <- match.arg(sample.type)
   cbind(
     data.frame(
       sample_type = rep(sample.type, nrow(rubias)), 
