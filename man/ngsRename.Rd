@@ -16,6 +16,9 @@ from \code{\link{ngsFormatDF}}.}
 Rename NGS files using new accessioned names from indexing
   data frame.
 }
+\seealso{
+\code{\link{ngsFormatDF}}, \code{\link{ngsAccession}}
+}
 \author{
 Eric Archer \email{eric.archer@noaa.gov}
 }

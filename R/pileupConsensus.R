@@ -39,7 +39,7 @@ pileupConsensus <- function(fname, min.cov, min.freq, min.freq.cov,
   )
   
   message("Reading file...")
-  plp.file <- readPileup(fname)
+  plp.file <- pileupRead(fname)
   plp.file <- split(plp.file, plp.file$chrom)
   
   smry <- lapply(1:length(plp.file), function(i) {

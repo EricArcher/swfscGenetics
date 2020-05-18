@@ -13,6 +13,9 @@ from \code{\link{ngsFormatDF}}.}
 \description{
 Accession NGS sequence metadata to SQL Server table.
 }
+\seealso{
+\code{\link{ngsFormatDF}}, \code{\link{ngsRename}}
+}
 \author{
 Eric Archer \email{eric.archer@noaa.gov}
 }

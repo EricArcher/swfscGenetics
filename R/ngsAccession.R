@@ -6,6 +6,8 @@
 #'   
 #' @author Eric Archer \email{eric.archer@@noaa.gov}
 #' 
+#' @seealso \code{\link{ngsFormatDF}}, \code{\link{ngsRename}}
+#' 
 #' @export
 #' 
 ngsAccession <- function(df) {

@@ -39,6 +39,9 @@ ngsFormatDF(
 Format NGS data frame for accessioning. Assigns correct column 
   names, checks that files found.
 }
+\seealso{
+\code{\link{ngsRename}}, \code{\link{ngsAccession}}
+}
 \author{
 Eric Archer \email{eric.archer@noaa.gov}
 }

@@ -12,10 +12,14 @@ Depends:
   R (>= 3.2.3)
 Imports:
   data.table,
+  dplyr,
   gdata,
+  magrittr,
   R.utils,
+  rlang,
   RODBC,
   stats,
-  swfscMisc
+  swfscMisc,
+  tidyr
 License: GPL (>= 2)
 RoxygenNote: 7.1.0

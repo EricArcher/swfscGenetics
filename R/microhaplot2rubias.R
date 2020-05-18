@@ -11,27 +11,44 @@
 #' @export
 #' 
 microhaplot2rubias <- function(df, sample.type = c("reference", "mixture")) {
-  df <- df[, 1:8] 
-  df <- df[order(df$group, df$indiv.ID, df$locus), ]
-  
-  rubias <- do.call(rbind, lapply(split(df, df$indiv.ID), function(id.df) {
-    dups <- duplicated(id.df$locus)
-    dups[which(dups) - 1] <- TRUE
-    # n.times <- as.numeric(dups)              # count number of duplicates per locus
-    # n.times[which(n.times==0)] <- 2 # loci w/ 0 dups are homozygous, still need 2 alleles
-    # df3 <- id[rep(seq_len(nrow(id)), n.times),]  # dataframe w/ right number of entries
-    # df3$locus <- make.unique(as.character(df3$locus)) # make unique 2nd allele name
-    # gt <- spread(df3[,3:5], locus, haplo) # put everything in the right shape
-  }))
-  colnames(rubias)[1] <- "indiv"
+  rubias <- split(df, list(df$group, df$indiv.ID)) %>% 
+    lapply(function(id.df) {
+      id.df <- id.df[order(id.df$locus), ]
+      
+      # count number of heterozygotes per locus (duplicated locus entries)
+      hets <- duplicated(id.df$locus)
+      hets[which(hets) - 1] <- TRUE
+      rep.times <- as.numeric(hets)   
+      # loci w/ 0 duplicates are homozygous, still need 2 alleles
+      rep.times[rep.times == 0] <- 2
+      
+      # create new data frame
+      id.df <- id.df[rep(1:nrow(id.df), rep.times), ]
+      i <- rep(1:2, length.out = nrow(id.df))
+      id.df$locus <- paste(id.df$locus, i, sep = ".")
+      id.df %>% 
+        tidyr::pivot_wider(
+          id_cols = c("group", "indiv.ID"), 
+          names_from = "locus",
+          values_from = "haplo"
+        )
+    }) %>% 
+    dplyr::bind_rows() %>% 
+    dplyr::rename(
+      collection = "group",
+      indiv = "indiv.ID"
+    ) %>% 
+    as.data.frame
   
   sample.type <- match.arg(sample.type) 
-  group <- if(sample.type == "reference") df$group[1] else NA
   cbind(
     data.frame(
       sample_type = rep(sample.type, nrow(rubias)), 
-      repunit = as.character(rep(group, nrow(rubias))),           
-      collection = as.character(rep(df$group[1], nrow(rubias))),
+      repunit = if(sample.type == "reference") {
+        rubias$collection
+      } else {
+        rep(NA, nrow(rubias))
+      },        
       stringsAsFactors = FALSE
     ),
     rubias

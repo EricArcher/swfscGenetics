@@ -14,6 +14,8 @@
 #' 
 #' @author Eric Archer \email{eric.archer@@noaa.gov}
 #' 
+#' @seealso \code{\link{ngsRename}}, \code{\link{ngsAccession}}
+#' 
 #' @export
 #'
 ngsFormatDF <- function(library.name, df, folder,
