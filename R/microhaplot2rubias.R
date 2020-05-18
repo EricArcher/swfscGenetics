@@ -3,7 +3,8 @@
 #'   package to the proper format for the rubias package
 #'   
 #' @param df data frame from MicroHaplot
-#' @param sample.type determines type of MicroHaplot sample
+#' @param sample.type determines type of MicroHaplot sample. Can be any 
+#'   unambiguous substring of \code{"reference"} or \code{"mixture"}.
 #' 
 #' @author Eric Archer \email{eric.archer@@noaa.gov} Converted from code by
 #'   John Horne (\url{https://johnbhorne.wordpress.com/2019/03/22/snp-haplotypes-for-mixed-stock-fishery-analysis-microhaplot-to-rubias-conversion-in-r/})
@@ -40,7 +41,7 @@ microhaplot2rubias <- function(df, sample.type = c("reference", "mixture")) {
     ) %>% 
     as.data.frame
   
-  sample.type <- match.arg(sample.type) 
+  sample.type <- match.arg(tolower(sample.type))
   cbind(
     data.frame(
       sample_type = rep(sample.type, nrow(rubias)), 

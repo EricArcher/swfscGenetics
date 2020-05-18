@@ -9,7 +9,8 @@ microhaplot2rubias(df, sample.type = c("reference", "mixture"))
 \arguments{
 \item{df}{data frame from MicroHaplot}
 
-\item{sample.type}{determines type of MicroHaplot sample}
+\item{sample.type}{determines type of MicroHaplot sample. Can be any 
+unambiguous substring of \code{"reference"} or \code{"mixture"}.}
 }
 \description{
 Converts a reference or mixture file from the MicroHaplot 
