@@ -6,34 +6,34 @@
 \usage{
 ngsFormatDF(
   library.name,
-  df,
+  library.filename,
   folder,
+  labid = "labid",
   species = "species",
-  f.index = "F_index",
-  r.index = "R_index",
-  labid = "LabID",
-  filename = "filename",
-  read.direction = "Read_Direction"
+  d.id = "d_id",
+  i7.index = "i7_index",
+  i5.index = "i5_index",
+  read.direction = "read_direction"
 )
 }
 \arguments{
 \item{library.name}{name of run library}
 
-\item{df}{original library data frame}
+\item{library.filename}{filename of library spreadsheet}
 
 \item{folder}{folder where original FASTQ files are stored}
 
-\item{species}{species name}
+\item{labid}{SWFSC LABID column name}
 
-\item{f.index}{forward index}
+\item{species}{species name column name}
 
-\item{r.index}{reverse index}
+\item{d.id}{DNA ID column name}
 
-\item{labid}{SWFSC LABID}
+\item{i7.index}{forward index column name}
 
-\item{filename}{filename of original FASTQ file}
+\item{i5.index}{reverse index column name}
 
-\item{read.direction}{direction of reads}
+\item{read.direction}{direction of reads column name}
 }
 \description{
 Format NGS data frame for accessioning. Assigns correct column 

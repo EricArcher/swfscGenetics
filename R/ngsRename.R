@@ -4,7 +4,8 @@
 #' 
 #' @param df formatted indexing data frame resulting 
 #'   from \code{\link{ngsFormatDF}}.
-#' @param folder folder where original files reside.
+#' @param old.folder folder where original files reside.
+#' @param new.folder folder where renamed files should be placed.
 #' 
 #' @author Eric Archer \email{eric.archer@@noaa.gov}
 #' 
@@ -12,19 +13,30 @@
 #' 
 #' @export
 #'
-ngsRename <- function(df, folder) {
-  df <- df[order(df$Gspp, decreasing = T), ]
+ngsRename <- function(df, old.folder, new.folder) {
+  df <- df[order(df$species, decreasing = T), ]
+  
   df$file.written <- sapply(1:nrow(df), function(i) {
-    new.path <- file.path(folder, df$New.Filename[i])
+    species <- df$species[i]
+    run.library <- df$run.library[i]
+    new.folder <- file.path(new.folder, species, run.library)
+    if(!dir.exists(new.folder)) dir.create(new.folder, recursive = TRUE)
+    new.path <- file.path(new.folder, df$new.filename[i])
     if(!file.exists(new.path)) {
-      old.path <- file.path(folder, df$Original.Filename[i])
+      old.path <- file.path(old.folder, df$original.filename[i])
       message(
         format(Sys.time()), 
         " : Renaming ", i, " / ", nrow(df), 
-        " '", df$New.Filename[i], "'"
+        " '", df$new.filename[i], "'"
       )
       file.rename(from = old.path, to = new.path)
-    } else FALSE
+    } else {
+      cat("'", new.path, "' already exists\n")
+      FALSE
+    }
   })
+  
   message(format(Sys.time()), " : Renamed ", sum(df$file.written), " files")
+  
+  df
 }

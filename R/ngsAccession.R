@@ -11,6 +11,8 @@
 #' @export
 #' 
 ngsAccession <- function(df) {
+  ts <- format(Sys.time(), "%Y%m%d_%H%M")
+  
   connStr <- paste(
     "DRIVER=SQL Server Native Client 11.0",
     "DATABASE=Genetics",
@@ -25,45 +27,45 @@ ngsAccession <- function(df) {
     # Insert row
     qryStr <- paste0(
       "EXEC sp_NextGenSequence_Insert ",
-      df$LABID[i], ", ", 
+      df$labid[i], ", ", 
       ifelse(
-        is.na(df$Run.Library[i]), 
+        is.na(df$run.library[i]), 
         "NULL", 
-        paste("'", df$Run.Library[i], "'", sep = "")
+        paste("'", df$run.library[i], "'", sep = "")
       ), ", ", 
-      ifelse(is.na(df$F_index[i]), "NULL", df$F_index[i]), ", ", 
+      ifelse(is.na(df$i7.index[i]), "NULL", df$i7.index[i]), ", ", 
       "NULL, ", 
       ifelse(
-        is.na(df$Original.Filename[i]), 
+        is.na(df$original.filename[i]), 
         "NULL", 
-        paste("'", df$Original.Filename[i], "'", sep = "")
+        paste("'", df$original.filename[i], "'", sep = "")
       ), ", ",
       ifelse(
-        is.na(df$D_id[i]), 
+        is.na(df$d.id[i]), 
         "NULL", 
-        paste("'", df$D_id[i], "'", sep = "")
+        paste("'", df$d.id[i], "'", sep = "")
       ), ", ", 
       ifelse(
-        is.na(df$Read_Direction[i]), 
+        is.na(df$read.direction[i]), 
         "NULL", 
-        paste("'", df$Read_Direction[i], "'", sep = "")
+        paste("'", df$read.direction[i], "'", sep = "")
       ), ", ", 
-      ifelse(is.na(df$R_index[i]), "NULL", df$R_index[i])
+      ifelse(is.na(df$i5.index[i]), "NULL", df$i5.index[i])
     )
     
     # Get ID
     id <- unlist(RODBC::sqlQuery(conn, qryStr))
-    message("inserting id:, ", id, ", LABID: ", df$LABID[i])
+    message("inserting id:, ", id, ", LABID: ", df$labid[i])
     fname <- NA
     
     if(id > 0) {
       # Create new filename
       fname <- paste(
-        "z", sprintf("%07d", df$LABID[i]), 
-        "_", df$Gspp[i], 
-        "_", df$Run.Library[i], 
+        "z", sprintf("%07d", df$labid[i]), 
+        "_", df$species[i], 
+        "_", df$run.library[i], 
         "_n", sprintf("%07d", id), 
-        "_", df$Read_Direction[i], #added March2017
+        "_", df$read.direction[i], #added March2017
         ".fastq.gz", 
         sep = ""
       )      
@@ -82,15 +84,21 @@ ngsAccession <- function(df) {
     data.frame(
       index.id = df$index.id[i],
       ngs.id = id, 
-      New.Filename = fname, 
+      new.filename = fname, 
       stringsAsFactors = FALSE
     )
   }))
   RODBC::odbcCloseAll()
-
+  
+  acc.df <- merge(df, result, by = "index.id", all.x = TRUE)
+  library.name <- paste(unique(sort(acc.df$run.library)), collapse = ".")
+  acc.fname <- paste0(library.name, "_library_accession_report_", ts, ".csv")
+  utils::write.csv(acc.df, file = acc.fname, row.names = FALSE)
+  
   message(
     format(Sys.time()), " : Accessioned ", 
     sum(result$ngs.id > 0), " of ", nrow(result), " records."
   )
-  result
+  
+  acc.df
 }

@@ -4,13 +4,15 @@
 \alias{ngsRename}
 \title{Rename NGS files}
 \usage{
-ngsRename(df, folder)
+ngsRename(df, old.folder, new.folder)
 }
 \arguments{
 \item{df}{formatted indexing data frame resulting 
 from \code{\link{ngsFormatDF}}.}
 
-\item{folder}{folder where original files reside.}
+\item{old.folder}{folder where original files reside.}
+
+\item{new.folder}{folder where renamed files should be placed.}
 }
 \description{
 Rename NGS files using new accessioned names from indexing

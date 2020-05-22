@@ -3,14 +3,14 @@
 #'   names, checks that files found.
 #' 
 #' @param library.name name of run library
-#' @param df original library data frame
+#' @param library.filename filename of library spreadsheet
 #' @param folder folder where original FASTQ files are stored
-#' @param species species name
-#' @param f.index forward index
-#' @param r.index reverse index
-#' @param labid SWFSC LABID
-#' @param filename filename of original FASTQ file
-#' @param read.direction direction of reads
+#' @param labid SWFSC LABID column name
+#' @param species species name column name
+#' @param d.id DNA ID column name
+#' @param i7.index forward index column name
+#' @param i5.index reverse index column name
+#' @param read.direction direction of reads column name
 #' 
 #' @author Eric Archer \email{eric.archer@@noaa.gov}
 #' 
@@ -18,36 +18,51 @@
 #' 
 #' @export
 #'
-ngsFormatDF <- function(library.name, df, folder,
-                        species = "species", f.index = "F_index", 
-                        r.index = "R_index", labid = "LabID", 
-                        filename = "filename", 
-                        read.direction = "Read_Direction") {
+ngsFormatDF <- function(library.name, library.filename, folder,
+                        labid = "labid", species = "species", d.id = "d_id",
+                        i7.index = "i7_index", i5.index = "i5_index", 
+                        read.direction = "read_direction") {
+  df <- if(file.exists(library.filename)) {
+    utils::read.csv(library.filename, stringsAsFactors = FALSE)
+  } else {
+    stop("the file, '", library.filename, "' cannot be found.")
+  }
+  
+  ts <- format(Sys.time(), "%Y%m%d_%H%M")
+  
   df$index.id <- 1:nrow(df)
   df$run.library <- library.name
   df$species <- df[[species]]
   df$species <- gsub(" ", "", df$species)
-  df$f.index <- df[[f.index]]
-  df$r.index <- df[[r.index]]
+  df$i7.index <- df[[i7.index]]
+  df$i5.index <- df[[i5.index]]
   df$labid <- df[[labid]]
-  df$filename <- df[[filename]]
   df$read.direction <- df[[read.direction]]
   
-  old.fnames <- dir(folder)
-  filenames <- do.call(rbind, lapply(1:nrow(df), function(i) {
-    #added to index file from directory list for Illumina NextSeq files.
-    idx <- df$filename[i]
-    fnames <- grep(idx, old.fnames, value = TRUE)
-    #fixes problem of grabbing numbers that contain shorter numbers (e.g. 371, 11371)
-    #  fnames <- grep(paste0('^(',idx,')$'), old.fnames, value = TRUE) 
-    fnames <- if(length(fnames) == 0) NA else fnames
-    data.frame(
-      index.id = rep(i, length(fnames)), 
-      original.filename = fnames,
-      stringsAsFactors = FALSE
+  old.fnames <- dir(
+    folder, 
+    pattern = ".fastq", 
+    full.names = TRUE, 
+    recursive = TRUE
+  )
+  df$original.filename <- sapply(1:nrow(df), function(i) {
+    has.labid <- grep(
+      paste0(df$labid[i], "_"), 
+      old.fnames, 
+      value = TRUE
     )
-  }))
+    has.read.dir <- grep(
+      paste0(df$read.direction[i], "_"), 
+      old.fnames, 
+      value = TRUE
+    )
+    fname <- intersect(has.labid, has.read.dir)
+    if(length(fname) != 1) NA else basename(fname)
+  })
   
-  df <- merge(df, filenames, by = "index.id", all = TRUE)
-  df[!is.na(df$original.filename), ]
+  library.name <- paste(unique(sort(df$run.library)), collapse = ".")
+  fname <- paste0(library.name, "_index_", ts, ".csv")
+  utils::write.csv(df, file = fname, row.names = FALSE)
+  
+  df
 }
