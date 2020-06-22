@@ -24,10 +24,10 @@
 #' @export
 #' 
 pileupRead <- function(fname, all.columns = FALSE) {
-  col.names <- c("chrom", "pos", "ref", "cov", "bases", "quals")
+  col.names <- c("chrom", "ref.pos", "ref.base", "cov", "bases", "base.quals")
   plp <- data.table::fread(fname, sep = "\t")
   colnames(plp)[1:6] <- col.names
-  plp$ref <- toupper(plp$ref)
+  plp$ref.base <- toupper(plp$ref.base)
   plp$bases <- toupper(plp$bases)
   plp <- as.data.frame(plp)
   if(all.columns) plp else plp[, col.names]

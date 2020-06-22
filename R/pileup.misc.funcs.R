@@ -90,7 +90,7 @@
 #' @noRd
 .compilePileup <- function(i, plp, params) {
   freqs <- .freqFunc(i, plp)
-  plp <-  plp[i, c("chrom", "pos", "ref", "cov")]
+  plp <-  plp[i, c("chrom", "pos", "ref", "cov", "base.quals")]
   plp$consensus <- .consensusBase(plp$cov, freqs$bases, params)
   plp$cons.freq <- freqs$bases[plp$consensus]
   plp <- cbind(plp, rbind(freqs$bases))
