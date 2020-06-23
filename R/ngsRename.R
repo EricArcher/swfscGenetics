@@ -38,5 +38,7 @@ ngsRename <- function(df, old.folder, new.folder) {
   
   message(format(Sys.time()), " : Renamed ", sum(df$file.written), " files")
   
-  df
+  library.name <- paste(unique(sort(df$run.library)), collapse = ".")
+  out.fname <- paste0(library.name, "_run.library.csv")
+  utils::write.csv(df, out.fname, row.names = FALSE)
 }

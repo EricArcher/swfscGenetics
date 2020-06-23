@@ -65,7 +65,7 @@ ngsAccession <- function(df) {
         "_", df$species[i], 
         "_", df$run.library[i], 
         "_n", sprintf("%07d", id), 
-        "_", df$read.direction[i], #added March2017
+        "_", df$read.direction[i],
         ".fastq.gz", 
         sep = ""
       )      

@@ -6,28 +6,27 @@
 \usage{
 ngsFormatDF(
   library.name,
-  library.filename,
-  folder,
-  labid = "labid",
+  library.filename = NULL,
+  labid = "LabID",
+  d.id = "D_id",
   species = "species",
-  d.id = "d_id",
   i7.index = "i7_index",
   i5.index = "i5_index",
-  read.direction = "read_direction"
+  read.direction = "Read_Direction"
 )
 }
 \arguments{
-\item{library.name}{name of run library}
+\item{library.name}{name of run library. This should also be the folder 
+name where the files to be archived are located.}
 
-\item{library.filename}{filename of library spreadsheet}
-
-\item{folder}{folder where original FASTQ files are stored}
+\item{library.filename}{filename of library spreadsheet. If \code{NULL}, 
+the .csv file in the folder}
 
 \item{labid}{SWFSC LABID column name}
 
-\item{species}{species name column name}
-
 \item{d.id}{DNA ID column name}
+
+\item{species}{species name column name}
 
 \item{i7.index}{forward index column name}
 

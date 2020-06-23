@@ -2,12 +2,13 @@
 #' @description Format NGS data frame for accessioning. Assigns correct column 
 #'   names, checks that files found.
 #' 
-#' @param library.name name of run library
-#' @param library.filename filename of library spreadsheet
-#' @param folder folder where original FASTQ files are stored
+#' @param library.name name of run library. This should also be the folder 
+#'   name where the files to be archived are located.
+#' @param library.filename filename of library spreadsheet. If \code{NULL}, 
+#'   the .csv file in the folder
 #' @param labid SWFSC LABID column name
-#' @param species species name column name
 #' @param d.id DNA ID column name
+#' @param species species name column name
 #' @param i7.index forward index column name
 #' @param i5.index reverse index column name
 #' @param read.direction direction of reads column name
@@ -18,29 +19,51 @@
 #' 
 #' @export
 #'
-ngsFormatDF <- function(library.name, library.filename, folder,
-                        labid = "labid", species = "species", d.id = "d_id",
+ngsFormatDF <- function(library.name, library.filename = NULL,
+                        labid = "LabID", d.id = "D_id", species = "species", 
                         i7.index = "i7_index", i5.index = "i5_index", 
-                        read.direction = "read_direction") {
+                        read.direction = "Read_Direction") {
+  
+  if(!dir.exists(library.name)) {
+    stop("the folder '", library.name, "' does not exist.")
+  }
+  
+  if(is.null(library.filename)) {
+    library.filename <- dir(library.name, pattern = ".csv$", full.names = TRUE)
+    if(length(library.filename) > 1) {
+      stop("more than one .csv file found in '", library.name, "'")
+    }
+    if(length(library.filename) == 0) {
+      stop("no .csv file found in '", library.name, "'")
+    }
+  }
+  
   df <- if(file.exists(library.filename)) {
     utils::read.csv(library.filename, stringsAsFactors = FALSE)
   } else {
     stop("the file, '", library.filename, "' cannot be found.")
   }
   
+  for(x in c(labid, d.id, species, i7.index, i5.index, read.direction)) {
+    if(!x %in% colnames(df)) {
+      stop("can't find column '", x, "' in '", library.filename, "'")
+    }
+  }
+  
   ts <- format(Sys.time(), "%Y%m%d_%H%M")
   
   df$index.id <- 1:nrow(df)
   df$run.library <- library.name
+  df$labid <- df[[labid]]
+  df$d.id <- df[[d.id]]
   df$species <- df[[species]]
   df$species <- gsub(" ", "", df$species)
   df$i7.index <- df[[i7.index]]
   df$i5.index <- df[[i5.index]]
-  df$labid <- df[[labid]]
   df$read.direction <- df[[read.direction]]
   
   old.fnames <- dir(
-    folder, 
+    library.name, 
     pattern = ".fastq", 
     full.names = TRUE, 
     recursive = TRUE
