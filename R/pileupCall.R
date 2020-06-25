@@ -331,9 +331,11 @@ pileupCallFile <- function(fname, min.cov.call, min.cov.freq,
         stats::pbinom(base.freq[x], cov, pool.prop[x])
       })
       cond.1 <- read.prop > pool.prop & pool.prop > 0.5
-      cond.2 <- binom.prob >= min.binom.prob & 
-        read.prop >= min.prob.freq &
-        (0.875 * read.prop) - (pool.prop + 0.175) > 0 
+      cond.2 <- pool.prop <= 0.5 &
+        read.prop >= ((1 - (min.prob.freq / 0.5)) * pool.prop) + min.prob.freq &
+        binom.prob >= min.binom.prob
+        # read.prop >= mult * binom.prob
+        # (0.875 * read.prop) - (pool.prop + 0.175) > 0 
       is.good <- cond.1 | cond.2
       
       if(any(is.good)) {
