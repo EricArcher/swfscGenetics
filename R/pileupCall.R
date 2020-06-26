@@ -92,8 +92,9 @@ pileupCallRun <- function(min.cov.call, min.cov.freq,
   )
   cons.seq <- ape::as.DNAbin(cons.seq)
   
-  if(is.null(label)) label <- "all_consensus"
-  label <- paste0(label, format(Sys.time(), "_%Y%m%d_%H%M"))
+  if(is.null(label)) label <- basename(folder)
+  label <- ifelse(label == ".", "", label)
+  label <- paste0(label, "_consensus_", format(Sys.time(), "_%Y%m%d_%H%M"))
   
   ape::write.dna(
     cons.seq, 
@@ -107,7 +108,7 @@ pileupCallRun <- function(min.cov.call, min.cov.freq,
   
   data.table::fwrite(plp, paste0(label, ".csv"))
   
-  list(cons.seq = cons.seq, plp = plp)
+  list(cons.seq = cons.seq, plp = as.data.frame(plp))
 }
 
 #' @rdname pileupCall
@@ -149,7 +150,7 @@ pileupCallFile <- function(fname, min.cov.call, min.cov.freq,
   }, simplify = FALSE)
   cons.seq <- ape::as.DNAbin(cons.seq)
   
-  list(cons.seq = cons.seq, plp = plp)
+  list(cons.seq = cons.seq, plp = as.data.frame(plp))
 }
 
 #' @noRd
@@ -196,9 +197,10 @@ pileupCallFile <- function(fname, min.cov.call, min.cov.freq,
   bases <- gsub("[.|,]", plp$ref.base[i], bases)
   # convert bases to single element factor
   bases <- unlist(strsplit(bases, ""))
-  bases <- factor(bases, levels = c("A", "C", "G", "T", "N", "-", "+"))
-  
-  #if(all(is.na(bases))) stop()
+  bases <- factor(
+    bases, 
+    levels = c("A", "C", "G", "T", "N", "-", "+")
+  )
   
   base.freq <- if(all(is.na(bases))) table(bases) else {
     # extract quality probabilities and convert to log-odds
@@ -236,20 +238,11 @@ pileupCallFile <- function(fname, min.cov.call, min.cov.freq,
     insertions
   )
   
-  cbind(plp[rep(i, nrow(df)), c("chrom", "ref.pos", "ref.base", "cov")], df)
-  
-  # list(    
-  #   df = cbind(
-  #     plp[rep(i, nrow(df)), c("chrom", "ref.pos", "ref.base", "cov")],
-  #     df
-  #   ),
-  #   base.lo = data.frame(
-  #     chrom = plp$chrom[i], 
-  #     ref.pos = plp$ref.pos[i],
-  #     base = bases, 
-  #     log.odds = lo
-  #   )
-  # )
+  cbind(plp[rep(i, nrow(df)), c("chrom", "ref.pos", "ref.base", "cov")], df) %>% 
+    dplyr::rename(
+      deletion = "-",
+      insertion = "+"
+    )
 }
 
 #' @noRd
@@ -338,7 +331,7 @@ pileupCallFile <- function(fname, min.cov.call, min.cov.freq,
 #' 
 .binomialBaseCall <- function(cons.plp.fnames, min.prob.freq, min.binom.prob) {
   run.plp <- do.call(rbind, lapply(cons.plp.fnames, data.table::fread))
-  base.vec <- c("A", "C", "G", "T", "N", "-")
+  base.vec <- c("A", "C", "G", "T", "N", "deletion")
   i <- which(run.plp$n.code == 3)
   for(pos in unique(run.plp$ref.pos[i])) {
     pool.prop <- run.plp %>% 
