@@ -28,15 +28,15 @@ pileupCallFile(
 )
 }
 \arguments{
-\item{min.cov.call}{minimum coverage for base calling. Sites with coverage below
-this are assigned \code{N}'s.}
+\item{min.cov.call}{minimum coverage for base calling. Sites with coverage 
+below this are assigned \code{N}'s.}
 
 \item{min.cov.freq}{minimum coverage above which \code{min.freq} is applied. 
 Sites below this value and >= than \code{min.cov} will only be called 
 if all reads agree.}
 
-\item{min.base.freq}{minimum frequency of either the reference or alternate base
-for calling. If both bases are below this frequency, an \code{N} 
+\item{min.base.freq}{minimum frequency of either the reference or alternate 
+base for calling. If both bases are below this frequency, an \code{N} 
 is assigned.}
 
 \item{min.ins.freq}{minimum frequency of insertion.}
@@ -47,7 +47,8 @@ is assigned.}
 
 \item{folder}{folder containing pileup files from a run}
 
-\item{pattern}{text pattern for pileup files.}
+\item{pattern}{text pattern for pileup files. The default is that the file
+ends in "\code{.pileup}".}
 
 \item{label}{label for run output files.}
 
@@ -59,8 +60,10 @@ will default to \code{parallel::detectCores() - 1}.}
 \value{
 list with the following elements:
 \tabular{ll}{ 
-  \code{plp} \tab data frame.\cr 
-  \code{base.lo} \tab data frame of bases and log-odds.\cr 
+  \code{cons.seq} \tab a \code{\link[ape]{DNAbin}} format list of 
+    sequences.\cr 
+  \code{plp} \tab data frame of reference, consensus base, and base 
+    frequencies at each reference position.\cr 
 }
 }
 \description{
@@ -70,7 +73,30 @@ Reads a pileup formatted file created by \code{samtools mpileup}
 }
 \note{
 The input pileup file should be the result of a call to 
-  \code{samtools mpileup} on a single BAM file.
+  \code{samtools mpileup} on a single BAM file.\cr\cr
+  For each position, bases are called according to the following logic within 
+    a single pileup file using \code{pileupCallFile()}:
+  \enumerate{
+    \item If coverage is < \code{min.cov.call}, assign \code{N}.\cr
+    \item If \code{min.cov.call} <= \code{coverage} < 
+      \code{min.cov.freq}, assign \code{N} unless all reads contain the 
+      same base.\cr
+    \item If coverage >= \code{min.cov.freq}, then assign \code{N}
+      unless a base occurs at frequency > \code{min.base.freq}.\cr
+    \item When a set of pileup files are processed together using
+      \code{pileupCallRun()}, an additional step is considered. For 
+       positions that were designated \code{N} based on 
+       condition 3 above, a base may be called if 1) the pooled frequency 
+       (\code{pool.prop}) for that base is > 0.5 and the frequency for the 
+       individual (read.prop) is > \code{pool.prop}, or 2) \code{pool.prop}
+       <= 0.5, the binomial probability of that base (given the coverage 
+       at that site) is > \code{min.binom.prob}, and \code{read.prop} is 
+       above a line defined by ((1 - (\code{min.prob.freq} / 0.5)) * 
+       \code{pool.prop}) + \code{min.prob.freq}.\cr
+   }
+ The above numbers are used as the value of the \code{n.code} column in
+   the output \code{plp} data frame to identify the reason an \code{N} was
+   called at a given position.
 }
 \author{
 Eric Archer \email{eric.archer@noaa.gov}

@@ -6,30 +6,56 @@
 #'
 #' @param folder folder containing pileup files from a run
 #' @param fname filename of pileup file
-#' @param min.cov.call minimum coverage for base calling. Sites with coverage below
-#'   this are assigned \code{N}'s.
+#' @param min.cov.call minimum coverage for base calling. Sites with coverage 
+#'   below this are assigned \code{N}'s.
 #' @param min.cov.freq minimum coverage above which \code{min.freq} is applied. 
 #'   Sites below this value and >= than \code{min.cov} will only be called 
 #'   if all reads agree.
-#' @param min.base.freq minimum frequency of either the reference or alternate base
-#'   for calling. If both bases are below this frequency, an \code{N} 
+#' @param min.base.freq minimum frequency of either the reference or alternate 
+#'   base for calling. If both bases are below this frequency, an \code{N} 
 #'   is assigned.
 #' @param min.ins.freq minimum frequency of insertion.
 #' @param min.prob.freq minimum frequency for binomial probability.
 #' @param min.binom.prob minimum probability from binomial distribution.
-#' @param pattern text pattern for pileup files.
+#' @param pattern text pattern for pileup files. The default is that the file
+#'   ends in "\code{.pileup}".
 #' @param label label for run output files.
 #' @param num.cores number of cores to use during processing. If \code{NULL}, 
 #'   will default to \code{parallel::detectCores() - 1}.
 #'
 #' @return list with the following elements:
 #' \tabular{ll}{ 
-#'   \code{plp} \tab data frame.\cr 
-#'   \code{base.lo} \tab data frame of bases and log-odds.\cr 
+#'   \code{cons.seq} \tab a \code{\link[ape]{DNAbin}} format list of 
+#'     sequences.\cr 
+#'   \code{plp} \tab data frame of reference, consensus base, and base 
+#'     frequencies at each reference position.\cr 
 #' }
 #'
 #' @note The input pileup file should be the result of a call to 
-#'   \code{samtools mpileup} on a single BAM file.
+#'   \code{samtools mpileup} on a single BAM file.\cr\cr
+#'   For each position, bases are called according to the following logic within 
+#'     a single pileup file using \code{pileupCallFile()}:
+#'   \enumerate{
+#'     \item If coverage is < \code{min.cov.call}, assign \code{N}.\cr
+#'     \item If \code{min.cov.call} <= \code{coverage} < 
+#'       \code{min.cov.freq}, assign \code{N} unless all reads contain the 
+#'       same base.\cr
+#'     \item If coverage >= \code{min.cov.freq}, then assign \code{N}
+#'       unless a base occurs at frequency > \code{min.base.freq}.\cr
+#'     \item When a set of pileup files are processed together using
+#'       \code{pileupCallRun()}, an additional step is considered. For 
+#'        positions that were designated \code{N} based on 
+#'        condition 3 above, a base may be called if 1) the pooled frequency 
+#'        (\code{pool.prop}) for that base is > 0.5 and the frequency for the 
+#'        individual (read.prop) is > \code{pool.prop}, or 2) \code{pool.prop}
+#'        <= 0.5, the binomial probability of that base (given the coverage 
+#'        at that site) is > \code{min.binom.prob}, and \code{read.prop} is 
+#'        above a line defined by ((1 - (\code{min.prob.freq} / 0.5)) * 
+#'        \code{pool.prop}) + \code{min.prob.freq}.\cr
+#'    }
+#'  The above numbers are used as the value of the \code{n.code} column in
+#'    the output \code{plp} data frame to identify the reason an \code{N} was
+#'    called at a given position.  
 #'
 #' @author Eric Archer \email{eric.archer@@noaa.gov}
 #'
@@ -64,12 +90,13 @@ pileupCallRun <- function(min.cov.call, min.cov.freq,
     },
     simplify = FALSE
   )
+  cons.seq <- ape::as.DNAbin(cons.seq)
   
   if(is.null(label)) label <- "all_consensus"
   label <- paste0(label, format(Sys.time(), "_%Y%m%d_%H%M"))
   
   ape::write.dna(
-    ape::as.DNAbin(cons.seq), 
+    cons.seq, 
     file = paste0(label, ".fasta"), 
     format = "fasta", 
     nbcol = -1, 
@@ -114,13 +141,15 @@ pileupCallFile <- function(fname, min.cov.call, min.cov.freq,
   })
   smry <- stats::setNames(smry, names(plp.file))
   
-  list(
-    cons.seq = sapply(smry, function(x) {
-      x <- x$cons.base
-      x[!is.na(x)]
-    }, simplify = FALSE),
-    plp = cbind(fname = basename(fname), dplyr::bind_rows(smry))
-  )
+  plp <- cbind(fname = basename(fname), dplyr::bind_rows(smry))
+  
+  cons.seq <- sapply(smry, function(x) {
+    x <- x$cons.base
+    x[!is.na(x)]
+  }, simplify = FALSE)
+  cons.seq <- ape::as.DNAbin(cons.seq)
+  
+  list(cons.seq = cons.seq, plp = plp)
 }
 
 #' @noRd
@@ -334,8 +363,6 @@ pileupCallFile <- function(fname, min.cov.call, min.cov.freq,
       cond.2 <- pool.prop <= 0.5 &
         read.prop >= ((1 - (min.prob.freq / 0.5)) * pool.prop) + min.prob.freq &
         binom.prob >= min.binom.prob
-        # read.prop >= mult * binom.prob
-        # (0.875 * read.prop) - (pool.prop + 0.175) > 0 
       is.good <- cond.1 | cond.2
       
       if(any(is.good)) {
