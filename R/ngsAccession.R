@@ -27,7 +27,7 @@ ngsAccession <- function(df) {
     # Insert row
     qryStr <- paste0(
       "EXEC sp_NextGenSequence_Insert ",
-      df$labid[i], ", ", 
+      regmatches(df$labid[i], regexpr("[[:digit:]]*", df$labid[i])), ", ", 
       ifelse(
         is.na(df$run.library[i]), 
         "NULL", 

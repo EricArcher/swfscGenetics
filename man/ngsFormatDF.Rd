@@ -20,7 +20,7 @@ ngsFormatDF(
 name where the files to be archived are located.}
 
 \item{library.filename}{filename of library spreadsheet. If \code{NULL}, 
-the .csv file in the folder}
+the .csv file in the \code{library.name} folder}
 
 \item{labid}{SWFSC LABID column name}
 

@@ -5,7 +5,7 @@
 #' @param library.name name of run library. This should also be the folder 
 #'   name where the files to be archived are located.
 #' @param library.filename filename of library spreadsheet. If \code{NULL}, 
-#'   the .csv file in the folder
+#'   the .csv file in the \code{library.name} folder
 #' @param labid SWFSC LABID column name
 #' @param d.id DNA ID column name
 #' @param species species name column name
@@ -64,7 +64,7 @@ ngsFormatDF <- function(library.name, library.filename = NULL,
   
   old.fnames <- dir(
     library.name, 
-    pattern = ".fastq", 
+    pattern = ".fastq.gz$", 
     full.names = TRUE, 
     recursive = TRUE
   )
