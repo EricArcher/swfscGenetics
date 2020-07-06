@@ -58,7 +58,7 @@ ngsAccession <- function(df) {
     )
     
     # Get ID
-    id <- unlist(RODBC::sqlQuery(conn, qryStr))
+    id <- as.numeric(unlist(RODBC::sqlQuery(conn, qryStr)))
     message("inserting id:, ", id, ", LABID: ", df$labid[i])
     fname <- NA
     
