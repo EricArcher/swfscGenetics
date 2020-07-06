@@ -23,11 +23,15 @@ ngsAccession <- function(df) {
   RODBC::odbcCloseAll()
   conn <- RODBC::odbcDriverConnect(connection = connStr)
   
+  df$labid.num <- as.numeric(
+    regmatches(df$labid, regexpr("[[:digit:]]*", df$labid))
+  )
+  
   result <- do.call(rbind, lapply(1:nrow(df), function(i) {
     # Insert row
     qryStr <- paste0(
       "EXEC sp_NextGenSequence_Insert ",
-      regmatches(df$labid[i], regexpr("[[:digit:]]*", df$labid[i])), ", ", 
+      df$labid.num[i], ", ", 
       ifelse(
         is.na(df$run.library[i]), 
         "NULL", 
@@ -61,7 +65,7 @@ ngsAccession <- function(df) {
     if(id > 0) {
       # Create new filename
       fname <- paste(
-        "z", sprintf("%07d", df$labid[i]), 
+        "z", sprintf("%07d", df$labid.num[i]), 
         "_", df$species[i], 
         "_", df$run.library[i], 
         "_n", sprintf("%07d", id), 
