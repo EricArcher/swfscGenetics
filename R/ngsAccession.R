@@ -68,7 +68,7 @@ ngsAccession <- function(df) {
     if(id > 0) {
       # Create new filename
       fname <- paste(
-        "z", sprintf("%07d", df$labid.num[i]), 
+        "z", sprintf("%07d", labid.num), 
         "_", df$species[i], 
         "_", df$run.library[i], 
         "_n", sprintf("%07d", id), 
