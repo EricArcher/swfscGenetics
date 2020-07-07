@@ -4,7 +4,7 @@
 \alias{ngsRename}
 \title{Rename NGS files}
 \usage{
-ngsRename(df, old.folder, new.folder)
+ngsRename(df, old.folder, new.folder, leave.files = TRUE)
 }
 \arguments{
 \item{df}{formatted indexing data frame resulting 
@@ -13,6 +13,9 @@ from \code{\link{ngsFormatDF}}.}
 \item{old.folder}{folder where original files reside.}
 
 \item{new.folder}{folder where renamed files should be placed.}
+
+\item{leave.files}{leave files in \code{old.folder}? If \code{FALSE} files 
+will be moved.}
 }
 \description{
 Rename NGS files using new accessioned names from indexing

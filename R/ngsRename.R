@@ -6,6 +6,8 @@
 #'   from \code{\link{ngsFormatDF}}.
 #' @param old.folder folder where original files reside.
 #' @param new.folder folder where renamed files should be placed.
+#' @param leave.files leave files in \code{old.folder}? If \code{FALSE} files 
+#'   will be moved.
 #' 
 #' @author Eric Archer \email{eric.archer@@noaa.gov}
 #' 
@@ -13,7 +15,7 @@
 #' 
 #' @export
 #'
-ngsRename <- function(df, old.folder, new.folder) {
+ngsRename <- function(df, old.folder, new.folder, leave.files = TRUE) {
   df <- df[order(df$species, decreasing = T), ]
   
   df$file.written <- sapply(1:nrow(df), function(i) {
@@ -29,7 +31,11 @@ ngsRename <- function(df, old.folder, new.folder) {
         " : Renaming ", i, " / ", nrow(df), 
         " '", df$new.filename[i], "'"
       )
-      file.rename(from = old.path, to = new.path)
+      if(leave.files) {
+        file.copy(from = old.path, to = new.path)
+      } else {
+        file.rename(from = old.path, to = new.path)
+      }
     } else {
       cat("'", new.path, "' already exists\n")
       FALSE
