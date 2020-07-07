@@ -23,15 +23,16 @@ ngsAccession <- function(df) {
   RODBC::odbcCloseAll()
   conn <- RODBC::odbcDriverConnect(connection = connStr)
   
-  df$labid.num <- as.numeric(
-    regmatches(df$labid, regexpr("[[:digit:]]*", df$labid))
-  )
-  
   result <- do.call(rbind, lapply(1:nrow(df), function(i) {
+    
+    labid.num <- as.numeric(
+      regmatches(df$labid[i], regexpr("[[:digit:]]*", df$labid[i]))
+    )
+    
     # Insert row
     qryStr <- paste0(
       "EXEC sp_NextGenSequence_Insert ",
-      df$labid.num[i], ", ", 
+      labid.num, ", ", 
       ifelse(
         is.na(df$run.library[i]), 
         "NULL", 
@@ -57,8 +58,10 @@ ngsAccession <- function(df) {
       ifelse(is.na(df$i5.index[i]), "NULL", df$i5.index[i])
     )
     
-    # Get ID
-    id <- as.numeric(unlist(RODBC::sqlQuery(conn, qryStr)))
+    # Insert row and get ID
+    qry.result <- RODBC::sqlQuery(conn, qryStr)
+    if(is.character(qry.result)) stop(qry.result)
+    id <- as.numeric(unlist(qry.result))
     message("inserting id:, ", id, ", LABID: ", df$labid[i])
     fname <- NA
     
