@@ -1,16 +1,18 @@
 #' @rdname pileupCall
 #' @title Call bases from pileup file
-#' @description Reads a pileup formatted file created by \code{samtools mpileup}
-#'   and calls bases for each chromosome listed. Base calling is controlled
-#'   by coverage and frequency parameters
+#' @description Reads a pileup formatted file (\code{pileupCallFile}) or 
+#'   all pileup files in a folder (\code{pileupCallRun}) created by 
+#'   \code{samtools mpileup} and calls bases for each chromosome listed. 
+#'   Base calling is controlled by coverage and frequency parameters as 
+#'   described in Notes. 
 #'
 #' @param folder folder containing pileup files from a run
 #' @param fname filename of pileup file
 #' @param min.cov.call minimum coverage for base calling. Sites with coverage 
 #'   below this are assigned \code{N}'s.
-#' @param min.cov.freq minimum coverage above which \code{min.freq} is applied. 
-#'   Sites below this value and >= than \code{min.cov} will only be called 
-#'   if all reads agree.
+#' @param min.cov.freq minimum coverage above which \code{min.cov.freq} is 
+#'   applied. Sites below this value and >= than \code{min.cov.call} will only 
+#'   be called if all reads agree.
 #' @param min.base.freq minimum frequency of either the reference or alternate 
 #'   base for calling. If both bases are below this frequency, an \code{N} 
 #'   is assigned.
@@ -58,6 +60,8 @@
 #'    called at a given position.  
 #'
 #' @author Eric Archer \email{eric.archer@@noaa.gov}
+#' 
+#' @seealso \code{\link{pileupRead}}
 #'
 #' @export
 #' 

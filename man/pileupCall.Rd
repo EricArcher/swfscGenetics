@@ -31,9 +31,9 @@ pileupCallFile(
 \item{min.cov.call}{minimum coverage for base calling. Sites with coverage 
 below this are assigned \code{N}'s.}
 
-\item{min.cov.freq}{minimum coverage above which \code{min.freq} is applied. 
-Sites below this value and >= than \code{min.cov} will only be called 
-if all reads agree.}
+\item{min.cov.freq}{minimum coverage above which \code{min.cov.freq} is 
+applied. Sites below this value and >= than \code{min.cov.call} will only 
+be called if all reads agree.}
 
 \item{min.base.freq}{minimum frequency of either the reference or alternate 
 base for calling. If both bases are below this frequency, an \code{N} 
@@ -67,9 +67,11 @@ list with the following elements:
 }
 }
 \description{
-Reads a pileup formatted file created by \code{samtools mpileup}
-  and calls bases for each chromosome listed. Base calling is controlled
-  by coverage and frequency parameters
+Reads a pileup formatted file (\code{pileupCallFile}) or 
+  all pileup files in a folder (\code{pileupCallRun}) created by 
+  \code{samtools mpileup} and calls bases for each chromosome listed. 
+  Base calling is controlled by coverage and frequency parameters as 
+  described in Notes.
 }
 \note{
 The input pileup file should be the result of a call to 
@@ -97,6 +99,9 @@ The input pileup file should be the result of a call to
  The above numbers are used as the value of the \code{n.code} column in
    the output \code{plp} data frame to identify the reason an \code{N} was
    called at a given position.
+}
+\seealso{
+\code{\link{pileupRead}}
 }
 \author{
 Eric Archer \email{eric.archer@noaa.gov}

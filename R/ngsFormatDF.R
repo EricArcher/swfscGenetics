@@ -12,6 +12,10 @@
 #' @param i7.index forward index column name
 #' @param i5.index reverse index column name
 #' @param read.direction direction of reads column name
+#' @param received.filename original filename of \code{.fastq.gz} file. This 
+#'   column is optional. If it does not exist, or values are empty for a row,
+#'   the function will look for a file with '\code{<labid>_}' and 
+#'   '\code{<read.direction>_}' in the filename.
 #' 
 #' @author Eric Archer \email{eric.archer@@noaa.gov}
 #' 
@@ -22,7 +26,8 @@
 ngsFormatDF <- function(library.name, library.filename = NULL,
                         labid = "LabID", d.id = "D_id", species = "species", 
                         i7.index = "i7_index", i5.index = "i5_index", 
-                        read.direction = "Read_Direction") {
+                        read.direction = "Read_Direction",
+                        received.filename = "received_filename") {
   
   if(!dir.exists(library.name)) {
     stop("the folder '", library.name, "' does not exist.")
@@ -39,7 +44,11 @@ ngsFormatDF <- function(library.name, library.filename = NULL,
   }
   
   df <- if(file.exists(library.filename)) {
-    utils::read.csv(library.filename, stringsAsFactors = FALSE)
+    utils::read.csv(
+      library.filename, 
+      na.strings = c("", "NA"),
+      stringsAsFactors = FALSE
+    )
   } else {
     stop("the file, '", library.filename, "' cannot be found.")
   }
@@ -50,8 +59,6 @@ ngsFormatDF <- function(library.name, library.filename = NULL,
     }
   }
   
-  ts <- format(Sys.time(), "%Y%m%d_%H%M")
-  
   df$index.id <- 1:nrow(df)
   df$run.library <- library.name
   df$labid <- df[[labid]]
@@ -61,6 +68,11 @@ ngsFormatDF <- function(library.name, library.filename = NULL,
   df$i7.index <- df[[i7.index]]
   df$i5.index <- df[[i5.index]]
   df$read.direction <- df[[read.direction]]
+  df$received.filename <- if(received.filename %in% colnames(df)) {
+    df[[received.filename]]
+  } else {
+    as.character(rep(NA, nrow(df)))
+  }
   
   old.fnames <- dir(
     library.name, 
@@ -69,22 +81,29 @@ ngsFormatDF <- function(library.name, library.filename = NULL,
     recursive = TRUE
   )
   df$original.filename <- sapply(1:nrow(df), function(i) {
-    has.labid <- grep(
-      paste0(df$labid[i], "_"), 
-      old.fnames, 
-      value = TRUE
-    )
-    has.read.dir <- grep(
-      paste0(df$read.direction[i], "_"), 
-      old.fnames, 
-      value = TRUE
-    )
-    fname <- intersect(has.labid, has.read.dir)
-    if(length(fname) != 1) NA else basename(fname)
+    if(!is.na(df$received.filename[i])) df$received.filename[i] else {
+      has.labid <- grep(
+        paste0(df$labid[i], "_"), 
+        old.fnames, 
+        value = TRUE
+      )
+      has.read.dir <- grep(
+        paste0(df$read.direction[i], "_"), 
+        old.fnames, 
+        value = TRUE
+      )
+      fname <- intersect(has.labid, has.read.dir)
+      if(length(fname) != 1) NA else basename(fname)
+    }
   })
   
   library.name <- paste(unique(sort(df$run.library)), collapse = ".")
-  fname <- paste0(library.name, "_index_", ts, ".csv")
+  fname <- paste0(
+    library.name, 
+    "_index_", 
+    format(Sys.time(), "%Y%m%d_%H%M"), 
+    ".csv"
+  )
   utils::write.csv(df, file = fname, row.names = FALSE)
   
   df

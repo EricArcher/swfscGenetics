@@ -12,7 +12,8 @@ ngsFormatDF(
   species = "species",
   i7.index = "i7_index",
   i5.index = "i5_index",
-  read.direction = "Read_Direction"
+  read.direction = "Read_Direction",
+  received.filename = "received_filename"
 )
 }
 \arguments{
@@ -33,6 +34,11 @@ the .csv file in the \code{library.name} folder}
 \item{i5.index}{reverse index column name}
 
 \item{read.direction}{direction of reads column name}
+
+\item{received.filename}{original filename of \code{.fastq.gz} file. This 
+column is optional. If it does not exist, or values are empty for a row,
+the function will look for a file with '\code{<labid>_}' and 
+'\code{<read.direction>_}' in the filename.}
 }
 \description{
 Format NGS data frame for accessioning. Assigns correct column 

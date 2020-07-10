@@ -11,79 +11,77 @@
 #' @export
 #' 
 ngsAccession <- function(df) {
-  ts <- format(Sys.time(), "%Y%m%d_%H%M")
+  .valOrNull <- function(x) {
+    if(is.na(x)) "NULL" else {
+      if(is.character(x)) paste0("'", x, "'")
+      else as.character(x)
+    }
+  }
   
-  connStr <- paste(
-    "DRIVER=SQL Server Native Client 11.0",
-    "DATABASE=Genetics",
-    "Trusted_Connection=Yes",
-    "SERVER=161.55.235.187",
-    sep = ";"
-  )
   RODBC::odbcCloseAll()
-  conn <- RODBC::odbcDriverConnect(connection = connStr)
+  conn <- RODBC::odbcDriverConnect(
+    paste(
+      "DRIVER=SQL Server Native Client 11.0",
+      "DATABASE=Genetics",
+      "Trusted_Connection=Yes",
+      "SERVER=161.55.235.187",
+      sep = ";"
+    )
+  )
   
   result <- do.call(rbind, lapply(1:nrow(df), function(i) {
-    
     labid.num <- as.numeric(
       regmatches(df$labid[i], regexpr("[[:digit:]]*", df$labid[i]))
     )
-    
-    # Insert row
-    qryStr <- paste0(
-      "EXEC sp_NextGenSequence_Insert ",
-      labid.num, ", ", 
-      ifelse(
-        is.na(df$run.library[i]), 
-        "NULL", 
-        paste("'", df$run.library[i], "'", sep = "")
-      ), ", ", 
-      ifelse(is.na(df$i7.index[i]), "NULL", df$i7.index[i]), ", ", 
-      "NULL, ", 
-      ifelse(
-        is.na(df$original.filename[i]), 
-        "NULL", 
-        paste("'", df$original.filename[i], "'", sep = "")
-      ), ", ",
-      ifelse(
-        is.na(df$d.id[i]), 
-        "NULL", 
-        paste("'", df$d.id[i], "'", sep = "")
-      ), ", ", 
-      ifelse(
-        is.na(df$read.direction[i]), 
-        "NULL", 
-        paste("'", df$read.direction[i], "'", sep = "")
-      ), ", ", 
-      ifelse(is.na(df$i5.index[i]), "NULL", df$i5.index[i])
+  
+    # Check if record exists
+    qry.result <- RODBC::sqlQuery(
+      conn, 
+      paste0(
+        "EXEC sp_NextGenSequence_LookupID ",
+        labid.num, ", ", 
+        .valOrNull(df$run.library[i]), ", ",
+        .valOrNull(df$original.filename[i])
+      )
     )
-    
-    # Insert row and get ID
-    qry.result <- RODBC::sqlQuery(conn, qryStr)
     if(is.character(qry.result)) stop(qry.result)
     id <- as.numeric(unlist(qry.result))
-    message("inserting id:, ", id, ", LABID: ", df$labid[i])
     fname <- NA
     
-    if(id > 0) {
-      # Create new filename
-      fname <- paste(
+    if(id == 0) {
+      # Insert row and get new ID
+      qry.result <- RODBC::sqlQuery(
+        conn,
+        paste0(
+          "EXEC sp_NextGenSequence_Insert ",
+          labid.num, ", ", 
+          .valOrNull(df$run.library[i]), ", ",
+          .valOrNull(df$i7.index[i]), ", ",
+          .valOrNull(df$original.filename[i]), ", ",
+          .valOrNull(df$d.id[i]), ", ",
+          .valOrNull(df$read.direction[i]), ", ",
+          .valOrNull(df$i5.index[i])
+        )
+      )
+      if(is.character(qry.result)) stop(qry.result)
+      id <- as.numeric(unlist(qry.result))
+      message(
+        format(Sys.time()), 
+        " : Inserted id:, ", id, ", LABID: ", df$labid[i]
+      )
+      
+      # Update filename
+      fname <- paste0(
         "z", sprintf("%07d", labid.num), 
         "_", df$species[i], 
         "_", df$run.library[i], 
         "_n", sprintf("%07d", id), 
         "_", df$read.direction[i],
-        ".fastq.gz", 
-        sep = ""
-      )      
-      
-      # Update filename
-      qryStr <- paste(
-        "SET NOCOUNT ON ",
-        "UPDATE tbl_NextGenSequence ",
-        "SET New_Filename = '", fname, "' ",
-        "WHERE ID = ", id,
-        sep = ""
+        ".fastq.gz"
+      ) 
+      qryStr <- paste0(
+        "SET NOCOUNT ON UPDATE tbl_NextGenSequence ", 
+        "SET New_Filename = '", fname, "' WHERE ID = ", id
       )
       RODBC::sqlQuery(conn, qryStr)
     }
@@ -97,15 +95,15 @@ ngsAccession <- function(df) {
   }))
   RODBC::odbcCloseAll()
   
+  ts <- format(Sys.time(), "%Y%m%d_%H%M")  
+  message(
+    ts, " : Accessioned ", 
+    sum(result$ngs.id > 0), " of ", nrow(result), " records."
+  )
   acc.df <- merge(df, result, by = "index.id", all.x = TRUE)
   library.name <- paste(unique(sort(acc.df$run.library)), collapse = ".")
   acc.fname <- paste0(library.name, "_library_accession_report_", ts, ".csv")
   utils::write.csv(acc.df, file = acc.fname, row.names = FALSE)
-  
-  message(
-    format(Sys.time()), " : Accessioned ", 
-    sum(result$ngs.id > 0), " of ", nrow(result), " records."
-  )
   
   acc.df
 }
