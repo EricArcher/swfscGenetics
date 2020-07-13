@@ -48,7 +48,14 @@ ngsAccession <- function(df) {
     id <- as.numeric(unlist(qry.result))
     fname <- NA
     
-    if(id == 0) {
+    if(id != 0) {
+      x <- if(id < 0) "more than one" else "one"
+      message(
+        format(Sys.time()), " : Found ", x, " record matching: ",
+        "Run Library = '", df$run.library[i], "' and ",
+        "Original Filename = '", df$original.filename[i], "'"
+      )
+    } else {
       # Insert row and get new ID
       qry.result <- RODBC::sqlQuery(
         conn,
@@ -67,7 +74,7 @@ ngsAccession <- function(df) {
       id <- as.numeric(unlist(qry.result))
       message(
         format(Sys.time()), 
-        " : Inserted id:, ", id, ", LABID: ", df$labid[i]
+        " : Inserted ID:, ", id, ", LABID: ", df$labid[i]
       )
       
       # Update filename
