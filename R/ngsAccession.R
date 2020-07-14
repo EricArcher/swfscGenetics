@@ -11,6 +11,8 @@
 #' @export
 #' 
 ngsAccession <- function(df) {
+  print("starting function")
+  
   .valOrNull <- function(x) {
     if(is.na(x)) "NULL" else {
       if(is.character(x)) paste0("'", x, "'")
@@ -30,10 +32,12 @@ ngsAccession <- function(df) {
   )
   
   result <- do.call(rbind, lapply(1:nrow(df), function(i) {
+    print(i)
     labid.num <- as.numeric(
       regmatches(df$labid[i], regexpr("[[:digit:]]*", df$labid[i]))
     )
   
+    print("checking if record exists")
     # Check if record exists
     qry.result <- RODBC::sqlQuery(
       conn, 
@@ -47,6 +51,7 @@ ngsAccession <- function(df) {
     id <- as.numeric(unlist(qry.result))
     fname <- NA
     
+    print("creating row")
     if(id != 0) {
       x <- if(id < 0) "more than one" else "one"
       message(
