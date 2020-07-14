@@ -47,6 +47,7 @@ ngsAccession <- function(df) {
         .valOrNull(df$original.filename[i])
       )
     )
+    print(qry.result)
     if(is.character(qry.result)) stop(qry.result)
     id <- as.numeric(unlist(qry.result))
     fname <- NA
