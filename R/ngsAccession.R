@@ -39,7 +39,6 @@ ngsAccession <- function(df) {
       conn, 
       paste0(
         "EXEC sp_NextGenSequence_LookupID ",
-        labid.num, ", ", 
         .valOrNull(df$run.library[i]), ", ",
         .valOrNull(df$original.filename[i])
       )
