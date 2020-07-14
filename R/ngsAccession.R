@@ -69,11 +69,12 @@ ngsAccession <- function(df) {
           .valOrNull(df$i5.index[i])
         )
       )
+      message(qry.result)
       if(is.character(qry.result)) stop(qry.result)
       id <- as.numeric(unlist(qry.result))
       message(
         format(Sys.time()), 
-        " : Inserted ID:, ", id, ", LABID: ", df$labid[i]
+        " : Inserted ID: ", id, ", LABID: ", df$labid[i]
       )
       
       # Update filename
@@ -89,6 +90,7 @@ ngsAccession <- function(df) {
         "SET NOCOUNT ON UPDATE tbl_NextGenSequence ", 
         "SET New_Filename = '", fname, "' WHERE ID = ", id
       )
+      message(qryStr)
       RODBC::sqlQuery(conn, qryStr)
     }
     
@@ -101,14 +103,17 @@ ngsAccession <- function(df) {
   }))
   RODBC::odbcCloseAll()
   
-  ts <- format(Sys.time(), "%Y%m%d_%H%M")  
   message(
-    ts, " : Accessioned ", 
+    format(Sys.time()), " : Accessioned ", 
     sum(result$ngs.id > 0), " of ", nrow(result), " records."
   )
   acc.df <- merge(df, result, by = "index.id", all.x = TRUE)
-  library.name <- paste(unique(sort(acc.df$run.library)), collapse = ".")
-  acc.fname <- paste0(library.name, "_library_accession_report_", ts, ".csv")
+  acc.fname <- paste0(
+    paste(unique(sort(acc.df$run.library)), collapse = "."), 
+    "_library_accession_report_", 
+    format(Sys.time(), "%Y%m%d_%H%M"),
+    ".csv"
+  )
   utils::write.csv(acc.df, file = acc.fname, row.names = FALSE)
   
   acc.df

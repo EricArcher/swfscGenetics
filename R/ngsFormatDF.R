@@ -60,7 +60,7 @@ ngsFormatDF <- function(library.name, library.filename = NULL,
   }
   
   df$index.id <- 1:nrow(df)
-  df$run.library <- library.name
+  df$run.library <- gsub("[[:space:]|[:punct:]]+", ".", library.name)
   df$labid <- df[[labid]]
   df$d.id <- df[[d.id]]
   df$species <- df[[species]]
