@@ -12,6 +12,8 @@
 #' @param i7.index forward index column name
 #' @param i5.index reverse index column name
 #' @param read.direction direction of reads column name
+#' @param library.directory original folder of file within the run folder 
+#'   specified by \code{library.name}.
 #' @param received.filename original filename of \code{.fastq.gz} file. This 
 #'   column is optional. If it does not exist, or values are empty for a row,
 #'   the function will look for a file with '\code{<labid>_}' and 
@@ -27,6 +29,7 @@ ngsFormatDF <- function(library.name, library.filename = NULL,
                         labid = "LabID", d.id = "D_id", species = "species", 
                         i7.index = "i7_index", i5.index = "i5_index", 
                         read.direction = "Read_Direction",
+                        library.directory = "library_directory",
                         received.filename = "received_filename") {
   
   if(!dir.exists(library.name)) {
@@ -53,7 +56,10 @@ ngsFormatDF <- function(library.name, library.filename = NULL,
     stop("the file, '", library.filename, "' cannot be found.")
   }
   
-  for(x in c(labid, d.id, species, i7.index, i5.index, read.direction)) {
+  for(x in c(
+    labid, d.id, species, i7.index, i5.index, 
+    read.direction, library.directory
+  )) {
     if(!x %in% colnames(df)) {
       stop("can't find column '", x, "' in '", library.filename, "'")
     }
@@ -68,6 +74,7 @@ ngsFormatDF <- function(library.name, library.filename = NULL,
   df$i7.index <- df[[i7.index]]
   df$i5.index <- df[[i5.index]]
   df$read.direction <- df[[read.direction]]
+  df$library.directory <- df[[library.directory]]
   df$received.filename <- if(received.filename %in% colnames(df)) {
     df[[received.filename]]
   } else {

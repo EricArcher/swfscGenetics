@@ -13,6 +13,7 @@ ngsFormatDF(
   i7.index = "i7_index",
   i5.index = "i5_index",
   read.direction = "Read_Direction",
+  library.directory = "library_directory",
   received.filename = "received_filename"
 )
 }
@@ -34,6 +35,9 @@ the .csv file in the \code{library.name} folder}
 \item{i5.index}{reverse index column name}
 
 \item{read.direction}{direction of reads column name}
+
+\item{library.directory}{original folder of file within the run folder 
+specified by \code{library.name}.}
 
 \item{received.filename}{original filename of \code{.fastq.gz} file. This 
 column is optional. If it does not exist, or values are empty for a row,

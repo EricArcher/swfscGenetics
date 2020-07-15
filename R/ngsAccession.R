@@ -69,6 +69,7 @@ ngsAccession <- function(df) {
           labid.num, ", ", 
           .valOrNull(df$run.library[i]), ", ",
           .valOrNull(df$i7.index[i]), ", ",
+          .valOrNull(df$library.directory[i]), ", ",
           .valOrNull(df$original.filename[i]), ", ",
           .valOrNull(df$d.id[i]), ", ",
           .valOrNull(df$read.direction[i]), ", ",
