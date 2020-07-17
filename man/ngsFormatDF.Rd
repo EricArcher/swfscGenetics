@@ -7,14 +7,14 @@
 ngsFormatDF(
   library.name,
   library.filename = NULL,
-  labid = "LabID",
+  labid = "LABID",
   d.id = "D_id",
   species = "species",
   i7.index = "i7_index",
   i5.index = "i5_index",
-  read.direction = "Read_Direction",
-  library.directory = "library_directory",
-  received.filename = "received_filename"
+  read.direction = "Read_direction",
+  library.directory = "Library_Directory",
+  original.filename = "Original_Filename"
 )
 }
 \arguments{
@@ -26,7 +26,7 @@ the .csv file in the \code{library.name} folder}
 
 \item{labid}{SWFSC LABID column name}
 
-\item{d.id}{DNA ID column name}
+\item{d.id}{DNA ID column name (optional)}
 
 \item{species}{species name column name}
 
@@ -37,12 +37,12 @@ the .csv file in the \code{library.name} folder}
 \item{read.direction}{direction of reads column name}
 
 \item{library.directory}{original folder of file within the run folder 
-specified by \code{library.name}.}
+specified by \code{library.name} (optional)}
 
-\item{received.filename}{original filename of \code{.fastq.gz} file. This 
-column is optional. If it does not exist, or values are empty for a row,
-the function will look for a file with '\code{<labid>_}' and 
-'\code{<read.direction>_}' in the filename.}
+\item{original.filename}{original filename of \code{.fastq.gz} file 
+(optional). If the column does not exist, or values are empty for a row,
+the function will look for a file beginning with '\code{<labid>_}' and has 
+'\code{<read.direction>_}' somewhere in the filename}
 }
 \description{
 Format NGS data frame for accessioning. Assigns correct column 
