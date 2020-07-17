@@ -11,8 +11,6 @@
 #' @export
 #' 
 ngsAccession <- function(df) {
-  print("starting function")
-  
   .valOrNull <- function(x) {
     if(is.na(x)) "NULL" else {
       if(is.character(x)) paste0("'", x, "'")
@@ -32,12 +30,10 @@ ngsAccession <- function(df) {
   )
   
   result <- do.call(rbind, lapply(1:nrow(df), function(i) {
-    print(i)
     labid.num <- as.numeric(
       regmatches(df$labid[i], regexpr("[[:digit:]]*", df$labid[i]))
     )
   
-    print("checking if record exists")
     # Check if record exists
     qry.result <- RODBC::sqlQuery(
       conn, 
@@ -47,12 +43,10 @@ ngsAccession <- function(df) {
         .valOrNull(df$original.filename[i])
       )
     )
-    print(qry.result)
     if(is.character(qry.result)) stop(qry.result)
     id <- as.numeric(unlist(qry.result))
     fname <- NA
     
-    print("creating row")
     if(id != 0) {
       x <- if(id < 0) "more than one" else "one"
       message(
@@ -76,7 +70,6 @@ ngsAccession <- function(df) {
           .valOrNull(df$i5.index[i])
         )
       )
-      message(qry.result)
       if(is.character(qry.result)) stop(qry.result)
       id <- as.numeric(unlist(qry.result))
       message(
@@ -97,7 +90,6 @@ ngsAccession <- function(df) {
         "SET NOCOUNT ON UPDATE tbl_NextGenSequence ", 
         "SET New_Filename = '", fname, "' WHERE ID = ", id
       )
-      message(qryStr)
       RODBC::sqlQuery(conn, qryStr)
     }
     
