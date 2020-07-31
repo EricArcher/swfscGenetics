@@ -18,6 +18,17 @@ ngsAccession <- function(df) {
     }
   }
   
+  .makeNewFilename <- function(labid.num, df, i, id) {
+    paste0(
+      "z", sprintf("%07d", labid.num), 
+      "_", df$species[i], 
+      "_", df$run.library[i], 
+      "_n", sprintf("%07d", id), 
+      "_", df$read.direction[i],
+      ".fastq.gz"
+    ) 
+  }
+  
   RODBC::odbcCloseAll()
   conn <- RODBC::odbcDriverConnect(
     paste(
@@ -45,15 +56,22 @@ ngsAccession <- function(df) {
     )
     if(is.character(qry.result)) stop(qry.result)
     id <- as.numeric(unlist(qry.result))
-    fname <- NA
     
-    if(id != 0) {
-      x <- if(id < 0) "more than one" else "one"
+    fname <- if(id < 0) {
       message(
-        format(Sys.time()), " : Found ", x, " record matching: ",
+        format(Sys.time()), " : WARNING! - Found more than one record matching: ",
         "Run Library = '", df$run.library[i], "' and ",
         "Original Filename = '", df$original.filename[i], "'"
       )
+      id <- NA
+      NA
+    } else if(id > 0) {     
+      message(
+        format(Sys.time()), " : Found ngs.id = ", id, " matching: ",
+        "Run Library = '", df$run.library[i], "' and ",
+        "Original Filename = '", df$original.filename[i], "'"
+      )
+      .makeNewFilename(labid.num, df, i, id)
     } else {
       # Insert row and get new ID
       qry.result <- RODBC::sqlQuery(
@@ -77,20 +95,14 @@ ngsAccession <- function(df) {
         " : Inserted ID: ", id, ", LABID: ", df$labid[i]
       )
       
-      # Update filename
-      fname <- paste0(
-        "z", sprintf("%07d", labid.num), 
-        "_", df$species[i], 
-        "_", df$run.library[i], 
-        "_n", sprintf("%07d", id), 
-        "_", df$read.direction[i],
-        ".fastq.gz"
-      ) 
+      # Create file name and update database
+      fname <- .makeNewFilename(labid.num, df, i, id)
       qryStr <- paste0(
         "SET NOCOUNT ON UPDATE tbl_NextGenSequence ", 
         "SET New_Filename = '", fname, "' WHERE ID = ", id
       )
       RODBC::sqlQuery(conn, qryStr)
+      fname
     }
     
     data.frame(

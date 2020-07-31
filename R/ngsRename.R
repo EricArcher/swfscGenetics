@@ -19,6 +19,7 @@ ngsRename <- function(df, old.folder, new.folder, leave.files = TRUE) {
   df <- df[order(df$species, decreasing = T), ]
   
   df$file.written <- sapply(1:nrow(df), function(i) {
+    if(is.na(df$original.filename[i]) | is.na(df$new.filename[i])) return(FALSE)
     species <- df$species[i]
     run.library <- df$run.library[i]
     new.folder <- file.path(new.folder, species, run.library)
