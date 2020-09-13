@@ -84,7 +84,7 @@ pileupCallRun <- function(min.cov.call, min.cov.freq,
   plp <- .binomialBaseCall(
     dir(folder, pattern = "cons.plp_", full.names = TRUE),
     min.prob.freq, min.binom.prob
-  )
+  ) 
   
   cons.seq <- sapply(
     split(plp, list(fname = plp$fname, chrom = plp$chrom)), 
@@ -141,7 +141,7 @@ pileupCallFile <- function(fname, min.cov.call, min.cov.freq,
     
     # call bases and summarize frequencies
     suppressPackageStartupMessages(
-      .plpSummary(plp.file[[i]], params, num.cores)
+      plp.smry <- .plpSummary(plp.file[[i]], params, num.cores)
     )
   })
   smry <- stats::setNames(smry, names(plp.file))
@@ -239,7 +239,7 @@ pileupCallFile <- function(fname, min.cov.call, min.cov.freq,
       ),
       rbind(base.freq)
     ),
-    insertions
+    if(base %in% 1:3) NULL else insertions
   )
   
   cbind(plp[rep(i, nrow(df)), c("chrom", "ref.pos", "ref.base", "cov")], df) %>% 
