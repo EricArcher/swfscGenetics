@@ -39,7 +39,12 @@ ngsFormatDF <- function(library.name, library.filename = NULL,
   
   # Get filename
   if(is.null(library.filename)) {
-    library.filename <- dir(library.name, pattern = ".csv$", full.names = TRUE)
+    library.filename <- dir(
+      library.name, 
+      pattern = ".csv$", 
+      full.names = TRUE,
+      recursive = FALSE
+    )
     if(length(library.filename) > 1) {
       stop("More than one .csv file found in '", library.name, "'.")
     }
@@ -100,7 +105,16 @@ ngsFormatDF <- function(library.name, library.filename = NULL,
     recursive = TRUE
   )
   df$original.filename <- sapply(1:nrow(df), function(i) {
-    if(!is.na(df$original.filename[i])) df$original.filename[i] else {
+    if(!is.na(df$original.filename[i])) {
+      f <- df$original.filename[i]
+      f.found <- dir(
+        library.name, 
+        pattern = paste0("^", f, "$"),
+        full.names = FALSE,
+        recursive = TRUE
+      )
+      if(length(f.found) == 1) f else NA
+    } else {
       has.labid <- grep(
         paste0("^", df$labid[i], "_"), 
         basename(old.fnames), 
@@ -123,6 +137,13 @@ ngsFormatDF <- function(library.name, library.filename = NULL,
       "The following filenames were assigned to more than one record: ",
       paste(df$original.filename[is.dup], collapse = ", ")
     )
+  }
+  
+  # Report how many files could not be found
+  if(any(is.na(df$original.filename))) {
+    cant.find <- df[is.na(df$original.filename), ]
+    message("Files could not be found for the following records:")
+    print(cant.find)
   }
   
   library.name <- paste(unique(sort(df$run.library)), collapse = ".")

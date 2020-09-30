@@ -24,22 +24,30 @@ ngsRename <- function(df, old.folder, new.folder, leave.files = TRUE) {
     run.library <- df$run.library[i]
     new.folder <- file.path(new.folder, species, run.library)
     if(!dir.exists(new.folder)) dir.create(new.folder, recursive = TRUE)
-    old.path <- file.path(old.folder, df$original.filename[i])
+    old.path <- dir(
+      old.folder,
+      pattern = paste0("^", df$original.filename[i], "$"),
+      full.names = TRUE,
+      recursive = TRUE
+    )
+    if(length(old.path) != 1) {
+      message("'", df$orginal.filename[i], "' can't be found in, '", old.folder, "'")
+      return(FALSE)
+    }
     new.path <- file.path(new.folder, df$new.filename[i])
-    if(file.exists(old.path) & !file.exists(new.path)) {
-      message(
-        format(Sys.time()), 
-        " : Renaming ", i, " / ", nrow(df), 
-        " '", df$new.filename[i], "'"
-      )
-      if(leave.files) {
-        file.copy(from = old.path, to = new.path)
-      } else {
-        file.rename(from = old.path, to = new.path)
-      }
+    if(file.exists(new.path)) {
+      message("'", new.path, "' already exists.")
+      return(FALSE)
+    }
+    message(
+      format(Sys.time()), 
+      " : Renaming ", i, " / ", nrow(df), 
+      " '", df$new.filename[i], "'"
+    )
+    if(leave.files) {
+      file.copy(from = old.path, to = new.path)
     } else {
-      cat("'", new.path, "' already exists\n")
-      FALSE
+      file.rename(from = old.path, to = new.path)
     }
   })
   
