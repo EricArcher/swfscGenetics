@@ -4,7 +4,13 @@
 \alias{ngsRename}
 \title{Rename NGS files}
 \usage{
-ngsRename(df, old.folder, new.folder, leave.files = TRUE)
+ngsRename(
+  df,
+  old.folder,
+  new.folder,
+  leave.files = TRUE,
+  use.archive.folders = TRUE
+)
 }
 \arguments{
 \item{df}{formatted indexing data frame resulting 
@@ -14,8 +20,16 @@ from \code{\link{ngsFormatDF}}.}
 
 \item{new.folder}{folder where renamed files should be placed.}
 
-\item{leave.files}{leave files in \code{old.folder}? If \code{FALSE} files 
-will be moved.}
+\item{leave.files}{leave files in \code{old.folder}? If \code{TRUE} a copy 
+operation will take place, leaving files in {old.folder}. If \code{FALSE},
+the a rename operation will take place. If \code{old.folder} is 
+different from \code{new.folder} or \code{use.archive.folders} is 
+\code{FALSE} this will be the same as moving the files.}
+
+\item{use.archive.folders}{If \code{TRUE} the target folder will be 
+'\code{<new.folder>}/Gspp/run.library' where 'Gspp' is the genus and 
+species abbreviation. If \code{FALSE}, the target folder will just be 
+the root of \code{new.folder}.}
 }
 \description{
 Rename NGS files using new accessioned names from indexing

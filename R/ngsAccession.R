@@ -77,7 +77,7 @@ ngsAccession <- function(df) {
       qry.result <- RODBC::sqlQuery(
         conn,
         paste0(
-          "EXEC sp_NextGenSequence_Insert ",
+          "EXEC sp_NGS_FASTQ_Insert ",
           labid.num, ", ", 
           .valOrNull(df$run.library[i]), ", ",
           .valOrNull(df$i7.index[i]), ", ",
