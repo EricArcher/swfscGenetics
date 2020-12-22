@@ -99,7 +99,7 @@ ngsAccession <- function(df) {
       fname <- .makeNewFilename(labid.num, df, i, id)
       qryStr <- paste0(
         "SET NOCOUNT ON UPDATE tbl_NGS_FASTQ ", 
-        "SET New_Filename = '", fname, "' WHERE ID = ", id
+        "SET New_Filename = '", fname, "' WHERE FASTQ_ID = ", id
       )
       RODBC::sqlQuery(conn, qryStr)
       fname
