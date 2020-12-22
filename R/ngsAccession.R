@@ -49,7 +49,7 @@ ngsAccession <- function(df) {
     qry.result <- RODBC::sqlQuery(
       conn, 
       paste0(
-        "EXEC sp_NextGenSequence_LookupID ",
+        "EXEC sp_NGS_FASTQ_LookupID ",
         .valOrNull(df$run.library[i]), ", ",
         .valOrNull(df$original.filename[i])
       )
@@ -98,7 +98,7 @@ ngsAccession <- function(df) {
       # Create file name and update database
       fname <- .makeNewFilename(labid.num, df, i, id)
       qryStr <- paste0(
-        "SET NOCOUNT ON UPDATE tbl_NextGenSequence ", 
+        "SET NOCOUNT ON UPDATE tbl_NGS_FASTQ ", 
         "SET New_Filename = '", fname, "' WHERE ID = ", id
       )
       RODBC::sqlQuery(conn, qryStr)
