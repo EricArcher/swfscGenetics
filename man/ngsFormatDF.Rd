@@ -14,7 +14,8 @@ ngsFormatDF(
   i5.index = "i5_index",
   read.direction = "Read_direction",
   library.directory = "Library_Directory",
-  original.filename = "Original_Filename"
+  original.filename = "Original_Filename",
+  comments = "Comments"
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ specified by \code{library.name} (optional)}
 (optional). If the column does not exist, or values are empty for a row,
 the function will look for a file beginning with '\code{<labid>_}' and has 
 '\code{<read.direction>_}' somewhere in the filename}
+
+\item{comments}{any text comments about the record (optional)}
 }
 \description{
 Format NGS data frame for accessioning. Assigns correct column 

@@ -18,6 +18,7 @@
 #'   (optional). If the column does not exist, or values are empty for a row,
 #'   the function will look for a file beginning with '\code{<labid>_}' and has 
 #'   '\code{<read.direction>_}' somewhere in the filename
+#' @param comments any text comments about the record (optional)
 #' 
 #' @author Eric Archer \email{eric.archer@@noaa.gov}
 #' 
@@ -30,7 +31,8 @@ ngsFormatDF <- function(library.name, library.filename = NULL,
                         i7.index = "i7_index",  i5.index = "i5_index", 
                         read.direction = "Read_direction",
                         library.directory = "Library_Directory",
-                        original.filename = "Original_Filename") {
+                        original.filename = "Original_Filename",
+                        comments = "Comments") {
   
   # Check that run folder exists
   if(!dir.exists(library.name)) {
@@ -75,8 +77,10 @@ ngsFormatDF <- function(library.name, library.filename = NULL,
   }
   if(!d.id %in% colnames(df)) df[[d.id]] <- NA
   if(!library.directory %in% colnames(df)) df[[library.directory]] <- NA
+  if(!comments %in% colnames(df)) df[[comments]] <- NA
   
   # Check that species is 4 characters long
+  df[[species]] <- as.character(df[[species]])
   df[[species]] <- gsub("[[:space:]]|[[:punct:]]+", "", df[[species]])
   num.chars <- nchar(df[[species]])
   if(any(num.chars != 4)) stop("Not all species are 4 characters long.")
@@ -84,18 +88,19 @@ ngsFormatDF <- function(library.name, library.filename = NULL,
   # Add and format necessary columns
   df$index.id <- 1:nrow(df)
   df$run.library <- gsub("[[:space:]|[:punct:]]+", ".", library.name)
-  df$labid <- df[[labid]]
-  df$d.id <- df[[d.id]]
+  df$labid <- as.numeric(df[[labid]])
+  df$d.id <- as.numeric(df[[d.id]])
   df$species <- df[[species]]
-  df$i7.index <- df[[i7.index]]
-  df$i5.index <- df[[i5.index]]
-  df$read.direction <- df[[read.direction]]
-  df$library.directory <- df[[library.directory]]
+  df$i7.index <- as.numeric(df[[i7.index]])
+  df$i5.index <- as.numeric(df[[i5.index]])
+  df$read.direction <- as.character(df[[read.direction]])
+  df$library.directory <- as.character(df[[library.directory]])
   df$original.filename <- if(original.filename %in% colnames(df)) {
-    df[[original.filename]]
+    as.character(df[[original.filename]])
   } else {
     as.character(rep(NA, nrow(df)))
   }
+  df$comments <- as.character(df[[comments]])
   
   # Match original filenames
   old.fnames <- dir(
