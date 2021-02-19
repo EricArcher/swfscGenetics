@@ -75,7 +75,7 @@ ngsAccession <- function(df) {
       # enter record data
       "INSERT INTO tbl_NGS_FASTQ (",
       "LABID, Run_Library, i7_index, Library_Directory, Original_Filename, ",
-      "D_id, Read_direction, i5_index) ",
+      "D_id, Read_direction, i5_index, Comments) ",
       "VALUES (",
       labid.num, ", ",
       .valOrNull(df$run.library[i]), ", ",
