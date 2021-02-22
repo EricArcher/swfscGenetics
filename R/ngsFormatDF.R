@@ -88,13 +88,13 @@ ngsFormatDF <- function(library.name, library.filename = NULL,
   # Add and format necessary columns
   df$index.id <- 1:nrow(df)
   df$run.library <- gsub("[[:space:]|[:punct:]]+", ".", library.name)
-  df$labid <- as.numeric(df[[labid]])
-  df$d.id <- as.numeric(df[[d.id]])
+  df$labid <- as.integer(df[[labid]])
+  df$d.id <- as.integer(df[[d.id]])
   df$species <- df[[species]]
-  df$i7.index <- as.numeric(df[[i7.index]])
-  df$i5.index <- as.numeric(df[[i5.index]])
+  df$i7.index <- as.integer(df[[i7.index]])
+  df$i5.index <- as.integer(df[[i5.index]])
   df$read.direction <- as.character(df[[read.direction]])
-  df$library.directory <- as.character(df[[library.directory]])
+  df$library.directory <- as.integer(df[[library.directory]])
   df$original.filename <- if(original.filename %in% colnames(df)) {
     as.character(df[[original.filename]])
   } else {
