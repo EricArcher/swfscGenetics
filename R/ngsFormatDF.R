@@ -85,6 +85,22 @@ ngsFormatDF <- function(library.name, library.filename = NULL,
   num.chars <- nchar(df[[species]])
   if(any(num.chars != 4)) stop("Not all species are 4 characters long.")
   
+  # Check values that should be integers
+  .allInts <- function(df, val) {
+    all(sapply(df[[val]], function(x) {
+      if(is.na(x)) return(TRUE)
+      x <- suppressWarnings(as.integer(x))
+      if(is.na(x)) FALSE else TRUE
+    }))
+  }
+  if(!.allInts(df, labid)) stop("Some LABIDs are not integers.")
+  if(!.allInts(df, d.id)) stop("Some D.IDs are not integers.")
+  if(!.allInts(df, i7.index)) stop("Some i7 indexes are not integers.")
+  if(!.allInts(df, i5.index)) stop("Some i5 indexes are not integers.")
+  if(!.allInts(df, library.directory)) {
+    stop("Some values in Library_Directory are not integers.")
+  }
+  
   # Add and format necessary columns
   df$index.id <- 1:nrow(df)
   df$run.library <- gsub("[[:space:]|[:punct:]]+", ".", library.name)
